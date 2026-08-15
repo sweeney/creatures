@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en" data-skin="1996">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foxes and Rabbits Simulator</title>
+<!-- Structure and layout only, no decoration. A skin should not have to fight
+     this file. -->
+<link rel="stylesheet" href="css/base.css">
+<!-- The look. Swapped at runtime by app.js; css/README.md documents the token
+     contract a skin has to satisfy. -->
+<link rel="stylesheet" href="css/skin-1996.css" id="skin">
+</head>
+<body>
+
+<div class="app">
+
+  <div class="titlebar">
+    <span class="titlebar__icon" aria-hidden="true"></span>
+    <h1 class="titlebar__name">Foxes and Rabbits Simulator</h1>
+    <span class="titlebar__buttons" aria-hidden="true">
+      <span class="titlebar__btn">_</span>
+      <span class="titlebar__btn">&#9633;</span>
+      <span class="titlebar__btn">&times;</span>
+    </span>
+  </div>
+
+  <nav class="menubar" id="menubar" aria-label="Main menu">
+    <div class="menu">
+      <button class="menu__button" type="button">File</button>
+      <ul class="menu__list" id="fileMenu">
+        <li class="menu__item" data-act="save">Save Field Configuration&hellip;</li>
+        <li class="menu__sep"></li>
+        <li class="menu__item" data-act="reset">Reset Generation Counter</li>
+      </ul>
+    </div>
+    <div class="menu">
+      <button class="menu__button" type="button">Options</button>
+      <ul class="menu__list">
+        <li class="menu__item" data-act="clear">Clear Field</li>
+        <li class="menu__item" data-act="populate">Populate Field with Grass</li>
+        <li class="menu__item" data-act="disease">Add Diseased Rabbit</li>
+        <li class="menu__sep"></li>
+        <li class="menu__item" data-act="size50">Set Field Size 50 &times; 50</li>
+        <li class="menu__item" data-act="size80">Set Field Size 80 &times; 80</li>
+      </ul>
+    </div>
+    <div class="menu">
+      <button class="menu__button" type="button">Disasters</button>
+      <ul class="menu__list" id="disasterMenu"></ul>
+    </div>
+    <div class="menu">
+      <button class="menu__button" type="button">Speed</button>
+      <ul class="menu__list">
+        <li class="menu__item is-check" data-act="fast">Fast</li>
+        <li class="menu__item is-check is-on" data-act="medium">Medium</li>
+        <li class="menu__item is-check" data-act="slow">Slow</li>
+      </ul>
+    </div>
+    <div class="menu">
+      <button class="menu__button" type="button">Configure</button>
+      <ul class="menu__list">
+        <li class="menu__item is-check is-on" data-act="skin:1996">Appearance: 1996</li>
+        <li class="menu__item is-check" data-act="skin:2026">Appearance: 2026</li>
+        <li class="menu__sep"></li>
+        <li class="menu__item" data-act="defaults">Revert parameters to internal defaults</li>
+      </ul>
+    </div>
+    <div class="menu">
+      <button class="menu__button" type="button">About</button>
+      <ul class="menu__list">
+        <li class="menu__item" data-act="about">About Creatures&hellip;</li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="workspace">
+
+    <div class="column column--field">
+      <div class="fieldview">
+        <canvas id="field" class="fieldview__canvas" width="248" height="248"
+                aria-label="Simulation field"></canvas>
+      </div>
+
+      <div class="buttonrow">
+        <button class="btn btn--stop" id="btnStop" type="button">Stop</button>
+        <button class="btn" id="btnOne" type="button"
+                title="Click to move on ONE generation">One Generation</button>
+        <button class="btn btn--start" id="btnStart" type="button">Start</button>
+      </div>
+
+      <div class="buttonrow" role="group" aria-label="Paint brush">
+        <button class="btn btn--grass brush" data-brush="1" type="button">Add grass</button>
+        <button class="btn btn--rabbit brush" data-brush="2" type="button">Add rabbits</button>
+        <button class="btn btn--fox brush" data-brush="4" type="button">Add foxes</button>
+      </div>
+
+      <p class="wordmark">Foxes and Rabbits<br>Simulator</p>
+      <p class="notice" id="notice" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="column column--main">
+
+      <section class="pane is-active" id="pane-main">
+        <fieldset class="panel panel--graph">
+          <legend class="panel__title">Graph Panel</legend>
+          <div class="graph">
+            <span class="graph__ylabel">Number of<br>Organisms</span>
+            <div class="graph__plot">
+              <canvas id="graph" class="graph__canvas" width="248" height="112"></canvas>
+            </div>
+          </div>
+          <p class="graph__xlabel">Generations</p>
+          <label class="check"><input type="checkbox" id="graphOn" checked> On/Off</label>
+          <div class="scalerow">
+            <span class="scalerow__label">Set y scale:</span>
+            <button class="btn btn--scale" data-scale="100" type="button">100</button>
+            <button class="btn btn--scale" data-scale="250" type="button">250</button>
+            <button class="btn btn--scale" data-scale="500" type="button">500</button>
+            <button class="btn btn--scale" data-scale="1000" type="button">1000</button>
+            <button class="btn btn--scale" data-scale="2000" type="button">2000</button>
+            <button class="btn btn--scale" data-scale="3000" type="button">3000</button>
+            <button class="btn btn--scale" data-scale="6000" type="button">6000</button>
+          </div>
+        </fieldset>
+
+        <div class="panelrow">
+          <fieldset class="panel panel--environment">
+            <div class="controlrow controlrow--spread">
+              <div class="control control--vertical">
+                <div class="control__track">
+                  <span class="control__value" id="pctSun">64<br>%</span>
+                  <input type="range" class="slider slider--vertical slider--sun"
+                         id="sldSun" min="0" max="100" value="64" aria-label="Sunlight">
+                </div>
+                <span class="control__label control__label--sun">
+                  <span class="control__icon control__icon--sun" aria-hidden="true"></span>Sunlight
+                </span>
+              </div>
+              <div class="control control--vertical">
+                <div class="control__track">
+                  <span class="control__value" id="pctGrassD">24<br>%</span>
+                  <input type="range" class="slider slider--vertical slider--grass"
+                         id="sldGrassD" min="0" max="100" value="24" aria-label="Grass death rate">
+                </div>
+                <span class="control__label">Grass<br>death rate</span>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="panel panel--animals">
+            <div class="controlrow controlrow--stack">
+              <input type="range" class="slider slider--hunt" id="sldHunt"
+                     min="0" max="100" value="88" aria-label="Fox hunting ability">
+              <span class="control__label">Fox hunting ability</span>
+              <input type="range" class="slider slider--rabbit" id="sldRabD"
+                     min="0" max="100" value="21" aria-label="Rabbit death rate">
+              <span class="control__label">Rabbit death rate</span>
+              <input type="range" class="slider slider--fox" id="sldFoxD"
+                     min="0" max="100" value="42" aria-label="Fox death rate">
+              <span class="control__label">Fox death rate</span>
+              <div class="rangeends"><span>0%</span><span>100%</span></div>
+            </div>
+          </fieldset>
+        </div>
+      </section>
+
+      <section class="pane" id="pane-field">
+        <fieldset class="panel">
+          <legend class="panel__title">Field Display Options</legend>
+          <label class="check"><input type="checkbox" id="showGrass" checked> Display Grass in Field</label>
+          <label class="check"><input type="checkbox" id="showRabbits" checked> Display Rabbits in Field</label>
+          <label class="check"><input type="checkbox" id="showFoxes" checked> Display Foxes in Field</label>
+          <p class="hint">Pick a brush, then click the field to paint organisms in.</p>
+        </fieldset>
+      </section>
+
+      <section class="pane" id="pane-graph">
+        <fieldset class="panel">
+          <legend class="panel__title">Graph Display Options</legend>
+          <label class="check"><input type="checkbox" id="plotGrass" checked> Plot Grass on Graph</label>
+          <label class="check"><input type="checkbox" id="plotRabbits" checked> Plot Rabbits on Graph</label>
+          <label class="check"><input type="checkbox" id="plotFoxes" checked> Plot Foxes on Graph</label>
+        </fieldset>
+      </section>
+
+      <section class="pane" id="pane-saveprint">
+        <fieldset class="panel">
+          <legend class="panel__title">Save</legend>
+          <button class="btn" data-act="save" type="button">Save Field Configuration&hellip;</button>
+          <p class="hint">Writes a <code>.FLD</code> the 1996 program will load:
+            the grid, the populations and all twenty parameters.</p>
+        </fieldset>
+      </section>
+    </div>
+
+    <div class="column column--status">
+      <fieldset class="panel">
+        <legend class="panel__title">Status</legend>
+        <div class="stat stat--grass">
+          <span class="stat__label">Grass</span>
+          <output class="stat__value" id="nGrass">0</output>
+        </div>
+        <div class="stat stat--rabbit">
+          <span class="stat__label">Rabbits</span>
+          <output class="stat__value" id="nRabbits">0</output>
+        </div>
+        <div class="stat stat--fox">
+          <span class="stat__label">Foxes</span>
+          <output class="stat__value" id="nFoxes">0</output>
+        </div>
+        <p class="runstate" id="runState">Stopped</p>
+      </fieldset>
+
+      <fieldset class="panel">
+        <legend class="panel__title">Generation</legend>
+        <output class="stat__value" id="nGen">0</output>
+      </fieldset>
+
+      <fieldset class="panel">
+        <legend class="panel__title">Simulation Speed</legend>
+        <input type="range" class="slider slider--speed" id="sldSpeed"
+               min="0" max="100" value="50" aria-label="Simulation speed">
+        <div class="rangeends"><span>Fast</span><span>Slow</span></div>
+      </fieldset>
+
+      <button class="btn btn--quit" id="btnQuit" type="button">
+        <span class="btn__icon" aria-hidden="true"></span>Quit</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab is-active" data-pane="main" type="button"><span class="tab__label">Main</span></button>
+    <button class="tab" data-pane="field" type="button"><span class="tab__label">Field Options</span></button>
+    <button class="tab" data-pane="graph" type="button"><span class="tab__label">Graph Options</span></button>
+    <button class="tab" data-pane="saveprint" type="button"><span class="tab__label">Save/Print</span></button>
+  </div>
+
+  <!-- The original showed About as its own modal form (AboutBox: TAboutBox in
+       the recovered resources), not as a page of the notebook. It sits inside
+       the window so it centres on the window rather than on the viewport. -->
+  <div class="modal" id="aboutModal">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+      <div class="dialog__titlebar">
+        <span class="dialog__title" id="aboutTitle">About Creatures</span>
+        <button class="titlebar__btn" data-act="about-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div class="dialog__body">
+        <div class="dialog__icon" aria-hidden="true"></div>
+        <div class="dialog__text">
+          <p class="wordmark">Creatures 1.0</p>
+          <div class="hint" id="aboutText"></div>
+        </div>
+      </div>
+      <div class="dialog__actions">
+        <button class="btn" id="btnAboutOk" data-act="about-close" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../core/creatures.js"></script>
+<script src="fields.js"></script>
+<script src="app.js"></script>
+<script src="testhooks.js"></script>
+</body>
+</html>

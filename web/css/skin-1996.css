@@ -1,0 +1,217 @@
+/* ============================================================================
+   skin-1996.css — Windows 95, as the original shipped.
+
+   Redefines the tokens from base.css and adds the bevel decoration that era
+   depended on. Layout lives in base.css; nothing here moves anything.
+   ========================================================================= */
+
+:root {
+  --bg: #2a6b7c;
+  --surface: #c0c0c0;
+  --panel-bg: transparent;
+  --text: #000;
+  --text-muted: #303030;
+  --accent: #000080;
+
+  --border: #c0c0c0;
+  --border-hi: #fff;
+  --border-lo: #404040;
+  --shadow: #808080;
+  --radius: 0;
+
+  --font: "MS Sans Serif", Tahoma, Geneva, Verdana, sans-serif;
+  --font-size: 11px;
+  --font-size-sm: 10px;
+  --line: 1.3;
+
+  --sim-empty: #000;
+  --sim-grass: #00a000;
+  --sim-rabbit: #0000ff;
+  --sim-fox: #f00;
+  --sim-diseased: #ff0;
+
+  --graph-bg: #fff;
+  --graph-grid: #e0e0e0;
+  --graph-grass: #909000;
+  --graph-rabbit: #0000c8;
+  --graph-fox: #c80000;
+
+  --species-grass: #008000;
+  --species-rabbit: #0000c8;
+  --species-fox: #c80000;
+}
+
+body { -webkit-font-smoothing: none; }
+
+.app {
+  border: 2px solid var(--surface);
+  border-top-color: var(--border-hi);
+  border-left-color: var(--border-hi);
+  border-right-color: var(--border-lo);
+  border-bottom-color: var(--border-lo);
+  box-shadow: 1px 1px 0 var(--shadow), 4px 4px 14px rgba(0, 0, 0, .45);
+}
+
+/* raised and sunken bevels, the whole visual language of the era */
+.btn, .tab {
+  background: var(--surface);
+  border: 2px solid var(--surface);
+  border-top-color: var(--border-hi);
+  border-left-color: var(--border-hi);
+  border-right-color: var(--border-lo);
+  border-bottom-color: var(--border-lo);
+  box-shadow: inset -1px -1px 0 var(--shadow), inset 1px 1px 0 var(--surface);
+  color: var(--text);
+}
+.btn:active, .btn.is-on {
+  border-top-color: var(--border-lo);
+  border-left-color: var(--border-lo);
+  border-right-color: var(--border-hi);
+  border-bottom-color: var(--border-hi);
+  box-shadow: inset 1px 1px 0 var(--shadow);
+}
+.btn[disabled] { color: var(--shadow); text-shadow: 1px 1px 0 var(--border-hi); }
+
+.fieldview, .graph__plot, .stat__value {
+  border: 2px solid var(--surface);
+  border-top-color: var(--shadow);
+  border-left-color: var(--shadow);
+  border-right-color: var(--border-hi);
+  border-bottom-color: var(--border-hi);
+  background: #fff;
+}
+
+.titlebar {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff;
+}
+.titlebar__icon {
+  background: linear-gradient(135deg, #00a000 40%, #0000c8 40% 70%, #c80000 70%);
+  border: 1px solid #000;
+}
+.titlebar__btn {
+  background: var(--surface); color: #000;
+  border: 1px solid var(--surface);
+  border-top-color: var(--border-hi); border-left-color: var(--border-hi);
+  border-right-color: var(--border-lo); border-bottom-color: var(--border-lo);
+}
+
+.menubar { border-bottom: 1px solid var(--shadow); }
+.menu.is-open .menu__button, .menu__button:hover { background: var(--accent); color: #fff; }
+.menu__list {
+  background: var(--surface);
+  border: 2px solid var(--surface);
+  border-top-color: var(--border-hi);
+  border-left-color: var(--border-hi);
+  border-right-color: var(--border-lo);
+  border-bottom-color: var(--border-lo);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, .4);
+}
+.menu__item:hover { background: var(--accent); color: #fff; }
+.menu__sep { border-top: 1px solid var(--shadow); border-bottom: 1px solid var(--border-hi); }
+
+.panel {
+  border: 1px solid var(--border-hi);
+  border-top-color: var(--shadow);
+  border-left-color: var(--shadow);
+}
+.panel--graph > .panel__title { color: #a000a0; font-weight: 700; font-style: italic; }
+
+.tabs { padding-left: 14px; }
+.tab {
+  border: 1px solid var(--border-lo);
+  border-bottom-color: transparent;
+  background: var(--surface);
+  box-shadow: none;
+  transform: skewX(-14deg);
+  margin-right: -1px;
+  font-style: italic;
+  padding: 2px 8px 3px;
+}
+.tab__label { transform: skewX(14deg); }
+.tab.is-active { font-weight: 700; font-style: normal; }
+
+/* species colouring, matching the field */
+.stat--grass .stat__label, .btn--grass { color: var(--species-grass); font-weight: 700; }
+.stat--rabbit .stat__label, .btn--rabbit { color: var(--species-rabbit); font-weight: 700; }
+.stat--fox .stat__label, .btn--fox { color: var(--species-fox); font-weight: 700; }
+.btn--start { color: var(--species-grass); font-weight: 700; }
+.btn--stop { color: var(--species-fox); font-weight: 700; }
+.btn--scale.is-on { color: var(--species-fox); }
+.brush.is-on { outline: 1px dotted #000; outline-offset: -4px; }
+
+.wordmark { color: var(--species-grass); font-size: 15px; line-height: 1.35; }
+.control__label--sun { color: #d8a000; font-weight: 700; }
+.control__icon--sun {
+  background: #000080;
+  border: 1px solid #000;
+  position: relative;
+}
+.control__icon--sun::after {
+  content: ''; position: absolute; inset: 2px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff 20%, #ffe000 55%, #d8a000 100%);
+}
+.notice { background: #ffffe1; }
+
+/* No backdrop dim: Windows 95 modals left the parent window at full
+   brightness. The drop shadow is what says the dialog floats. */
+.dialog {
+  border: 2px solid var(--surface);
+  border-top-color: var(--border-hi);
+  border-left-color: var(--border-hi);
+  border-right-color: var(--border-lo);
+  border-bottom-color: var(--border-lo);
+  box-shadow: 1px 1px 0 var(--shadow), 4px 4px 14px rgba(0, 0, 0, .45);
+}
+.dialog__titlebar {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff;
+}
+.dialog__icon {
+  background: linear-gradient(135deg, #00a000 40%, #0000c8 40% 70%, #c80000 70%);
+  border: 1px solid #000;
+}
+.buttonrow .btn { font-weight: 700; font-size: var(--font-size-sm); padding: 4px 2px; }
+.btn--quit { font-weight: 700; }
+/* The period exit glyph: a navy door swung open on its frame, an orange
+   handle, and a cyan arrow leaving through the doorway. */
+.btn--quit .btn__icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M6 2h4v12H6z' fill='%23fff' stroke='%23000'/%3E%3Cpath d='M10 3l4-2v14l-4-2z' fill='%23000080' stroke='%23000'/%3E%3Crect x='10.6' y='7.4' width='1.6' height='1.6' fill='%23ff8000'/%3E%3Cpath d='M7 6.5H4V4L0 8l4 4V9.5h3z' fill='%2300ffff' stroke='%23008080'/%3E%3C/svg%3E");
+}
+
+/* period sliders: a bevelled thumb on a sunken track */
+.slider { -webkit-appearance: none; appearance: none; background: transparent; }
+.slider::-webkit-slider-runnable-track {
+  background: var(--surface); height: 4px;
+  border: 1px solid var(--shadow);
+  border-right-color: var(--border-hi); border-bottom-color: var(--border-hi);
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 12px; height: 18px; margin-top: -7px;
+  background: var(--surface);
+  border: 2px solid var(--surface);
+  border-top-color: var(--border-hi); border-left-color: var(--border-hi);
+  border-right-color: var(--border-lo); border-bottom-color: var(--border-lo);
+  box-shadow: inset -1px -1px 0 var(--shadow);
+}
+/* In vertical writing mode the track's `height` runs along the inline axis,
+   so it has to be set again or it renders as a wide bar.
+
+   The original's vertical groove is three pixels: a #808080 shadow line, one
+   pixel of surface, a white highlight line. No fill and no cap at either end,
+   which is what makes it read as an etched hairline rather than a bar. */
+.slider--vertical::-webkit-slider-runnable-track {
+  width: 3px; height: 100%;
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--shadow);
+  border-right: 1px solid var(--border-hi);
+}
+.slider--vertical::-webkit-slider-thumb { width: 18px; height: 12px; margin-top: 0; margin-left: -8px; }
+.slider--sun::-webkit-slider-thumb { background: #ff0; }
+.slider--grass::-webkit-slider-thumb { background: #00d000; }
+.slider--hunt::-webkit-slider-thumb { background: #a000a0; }
+.slider--rabbit::-webkit-slider-thumb { background: #00f; }
+.slider--fox::-webkit-slider-thumb { background: #f00; }

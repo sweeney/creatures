@@ -1,0 +1,263 @@
+/* ============================================================================
+   base.css — structure and layout only.
+
+   No colours, borders, fonts or textures live here; those come from a skin.
+   Every visual property this file needs is read from a custom property with a
+   neutral fallback, so the page is usable even with no skin attached and a
+   skin never has to fight this file for layout.
+
+   The token contract is documented in css/README.md.
+   ========================================================================= */
+
+:root {
+  /* surfaces and text */
+  --bg: #cfcfcf;
+  --surface: #e7e7e7;
+  --panel-bg: transparent;
+  --text: #101010;
+  --text-muted: #444;
+  --accent: #204a87;
+
+  /* borders: skins that want a bevel set the two edge tokens differently */
+  --border: #999;
+  --border-hi: #fff;
+  --border-lo: #666;
+  --radius: 0;
+
+  /* typography */
+  --font: system-ui, sans-serif;
+  --font-mono: ui-monospace, Menlo, Consolas, monospace;
+  --font-size: 13px;
+  --font-size-sm: 11px;
+  --line: 1.35;
+
+  /* the simulation's own palette — the canvas reads these, so a skin
+     restyles the field as well as the chrome */
+  --sim-empty: #000;
+  --sim-grass: #00a000;
+  --sim-rabbit: #0000ff;
+  --sim-fox: #ff0000;
+  --sim-diseased: #ffff00;
+
+  /* the graph */
+  --graph-bg: #fff;
+  --graph-grid: #e0e0e0;
+  --graph-grass: #909000;
+  --graph-rabbit: #0000c8;
+  --graph-fox: #c80000;
+  --graph-text: #000;
+
+  /* metrics */
+  --gap: 6px;
+  --pad: 6px;
+  --panel-pad: 6px;
+  --app-width: 702px;
+  --field-px: 248px;
+  --slider-h: 18px;             /* thickness of a slider across its short axis */
+  --slider-vertical-h: 130px;   /* the original's vertical tracks are ~137px
+                                   in a 702px window */
+  --col-field: 258px;
+  --col-status: 118px;
+  --col-main-basis: 0;   /* a skin raises this so the middle column wraps
+                            rather than collapsing on a narrow window */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 18px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--font-size);
+  line-height: var(--line);
+  display: flex;
+  justify-content: center;
+}
+
+.app {
+  width: var(--app-width);
+  max-width: 100%;
+  background: var(--surface);
+  position: relative;   /* dialogs centre on the window, not the viewport */
+}
+
+/* ---- title bar ---- */
+.titlebar { display: flex; align-items: center; gap: 6px; padding: 3px; }
+.titlebar__icon { width: 14px; height: 14px; flex: none; }
+.titlebar__buttons { display: flex; gap: 2px; flex: none; }
+.titlebar__btn {
+  width: 16px; height: 14px; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 9px; line-height: 1;
+}
+.titlebar__name { flex: 1; margin: 0; font-size: var(--font-size); font-weight: 700; }
+
+
+/* ---- menus ---- */
+.menubar { display: flex; padding: 1px 2px; }
+.menu { position: relative; }
+.menu__button { font: inherit; background: none; border: 0; padding: 3px 8px; cursor: default; color: inherit; }
+.menu__list {
+  display: none; position: absolute; z-index: 30; top: 100%; left: 0;
+  min-width: 220px; margin: 0; padding: 2px; list-style: none;
+}
+.menu.is-open .menu__list { display: block; }
+.menu__item { padding: 4px 18px 4px 22px; cursor: default; position: relative; }
+.menu__sep { height: 2px; margin: 3px 2px; padding: 0; }
+.menu__item.is-check::before { content: '\2713'; position: absolute; left: 7px; opacity: 0; }
+.menu__item.is-check.is-on::before { opacity: 1; }
+
+/* ---- three-column workspace ---- */
+.workspace {
+  display: flex; gap: var(--gap);
+  padding: var(--pad); align-items: flex-start;
+}
+/* Below the widest skin's app width the columns reflow rather than crush.
+   Above it they stay in one row, which is what the 1996 layout expects. */
+@media (max-width: 900px) {
+  .workspace { flex-wrap: wrap; }
+}
+.column--field { width: var(--col-field); flex: none; }
+.column--main { flex: 1 1 var(--col-main-basis, 0); min-width: 0; }
+.column--status { width: var(--col-status); flex: none; }
+
+/* ---- panels ---- */
+.panel {
+  margin: 0 0 var(--gap); padding: var(--panel-pad); border: 0;
+  /* a <fieldset> defaults to min-inline-size:min-content, which makes it grow
+     to fit wide children instead of letting them scroll */
+  min-width: 0; min-inline-size: 0;
+}
+.panel__title { padding: 0 3px; }
+.panelrow { display: flex; gap: var(--gap); align-items: stretch; }
+.panelrow > .panel { flex: 1; min-width: 0; }
+.panel--animals { flex: 1.35; }
+
+/* ---- field ---- */
+.fieldview { padding: 2px; width: calc(var(--field-px) + 4px); }
+.fieldview__canvas {
+  display: block; width: var(--field-px); height: var(--field-px);
+  image-rendering: pixelated; cursor: crosshair;
+}
+
+/* ---- buttons ---- */
+.buttonrow { display: flex; gap: var(--gap); margin-top: var(--gap); }
+.buttonrow .btn { flex: 1; }   /* min-width stays auto so a label is never
+                                  clipped; a skin that needs more room widens
+                                  --col-field rather than shrinking buttons */
+.btn { font: inherit; cursor: pointer; padding: 4px 8px; white-space: nowrap; }
+.btn[disabled] { cursor: default; }
+.btn--quit {
+  width: 100%; padding: 6px 8px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+/* An empty box the skin fills with a glyph; a skin with no glyph hides it. */
+.btn__icon { flex: none; width: 16px; height: 16px; background: no-repeat center / contain; }
+
+/* ---- graph ---- */
+.graph { display: flex; gap: 4px; align-items: stretch; }
+.graph__ylabel { width: 58px; flex: none; font-size: var(--font-size-sm); text-align: right; align-self: center; }
+.graph__plot { flex: 1; min-width: 0; padding: 2px; }
+.graph__canvas { display: block; width: 100%; height: 112px; }
+.graph__xlabel { text-align: center; font-size: var(--font-size-sm); margin: 2px 0 0; }
+.scalerow { display: flex; gap: 2px; align-items: center; margin-top: 5px; white-space: nowrap; }
+.scalerow__label { margin-right: 4px; }
+.scalerow .btn { flex: none; }   /* the row scrolls; buttons keep their size
+                                    rather than being squeezed to fit */
+.btn--scale { padding: 2px 3px; font-size: var(--font-size-sm); }
+
+/* ---- controls ---- */
+.controlrow { display: flex; gap: 10px; }
+.controlrow--spread { justify-content: space-around; }
+.controlrow--stack { flex-direction: column; gap: 4px; }
+.control { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+/* the value sits beside the track, as it does in the original, not above it */
+.control__track { display: flex; align-items: flex-start; gap: 5px; }
+.control--vertical .control__value { padding-top: 12px; text-align: right; line-height: 1.15; }
+.control__label { font-size: var(--font-size-sm); text-align: center; }
+.control__icon {
+  display: inline-block; vertical-align: middle;
+  width: 14px; height: 14px; margin-right: 4px;
+}
+.control__value { font-size: var(--font-size-sm); }
+.rangeends { display: flex; justify-content: space-between; font-size: var(--font-size-sm); }
+
+.slider {
+  width: 100%; margin: 0;      /* range inputs default to a ~2px horizontal
+                                  margin, which overflows at width:100% */
+  height: var(--slider-h);
+}
+/* Two classes deep so a skin's plain `.slider` rule cannot silently win the
+   cascade and collapse these to the horizontal height. Skins set the tokens. */
+.slider.slider--vertical {
+  writing-mode: vertical-lr; direction: rtl;
+  width: var(--slider-h); height: var(--slider-vertical-h);
+}
+
+/* ---- status ---- */
+.stat { margin-bottom: 7px; }
+.stat__label { display: block; font-weight: 700; margin-bottom: 2px; }
+.stat__value { display: block; padding: 3px 5px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.runstate { text-align: center; font-weight: 700; margin: 4px 0 0; }
+
+/* ---- panes and tabs ---- */
+.pane { display: none; }
+.pane.is-active { display: block; }
+.tabs { display: flex; gap: 2px; padding: 0 var(--pad); }
+.tab { font: inherit; cursor: default; padding: 3px 10px 4px; }
+.tab__label { display: block; }
+
+/* ---- modal dialogs ---- */
+.modal {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gap, 6px);
+}
+.modal.is-open { display: flex; }
+.dialog {
+  width: min(360px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface, #c0c0c0);
+}
+.dialog__titlebar { display: flex; align-items: center; gap: 6px; padding: 3px; }
+.dialog__title { flex: 1; font-weight: 700; }
+.dialog__body {
+  display: flex;
+  gap: var(--gap, 6px);
+  align-items: flex-start;
+  padding: var(--panel-pad, 8px);
+  overflow-y: auto;
+}
+.dialog__icon { width: 32px; height: 32px; flex: none; }
+.dialog__text { min-width: 0; }
+.dialog__text .wordmark { margin-top: 0; text-align: left; }
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 var(--panel-pad, 8px) var(--panel-pad, 8px);
+}
+.dialog__actions .btn { min-width: 72px; }
+
+/* ---- misc ---- */
+.check { display: block; margin: 4px 0; cursor: pointer; }
+.hint { font-size: var(--font-size-sm); margin: 6px 0 0; line-height: 1.45; }
+.wordmark { text-align: center; font-weight: 700; margin: 10px 0 0; }
+.notice { margin: 8px 0 0; padding: 4px 6px; min-height: 22px; font-size: var(--font-size-sm); }
+.notice:empty { visibility: hidden; }
+.fieldlist { display: flex; flex-wrap: wrap; gap: var(--gap); }
+
+/* Wide content scrolls inside its own box rather than the page. */
+.scalerow, .fieldlist { overflow-x: auto; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

@@ -1,0 +1,660 @@
+<title>Reading CREATURE.EXE</title>
+<style>
+  :root {
+    --ground: #F5F5F2;
+    --surface: #FFFFFF;
+    --panel: #14171E;
+    --panel-text: #D8DBE2;
+    --rule: #D9DAD4;
+    --text: #1A1C21;
+    --muted: #5F646F;
+    --amber: #9A6A12;
+    --amber-bright: #E9B44C;
+    --grass: #2F7D3C;
+    --rabbit: #2B50B8;
+    --fox: #B83E33;
+    --measure: 66ch;
+  }
+  :root:not([data-theme="light"]) {
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0E1117;
+      --surface: #161A22;
+      --panel: #090B10;
+      --panel-text: #D8DBE2;
+      --rule: #262B36;
+      --text: #D7DAE1;
+      --muted: #868EA0;
+      --amber: #E9B44C;
+      --amber-bright: #E9B44C;
+      --grass: #46A356;
+      --rabbit: #6E92F0;
+      --fox: #E05B4F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0E1117;
+    --surface: #161A22;
+    --panel: #090B10;
+    --panel-text: #D8DBE2;
+    --rule: #262B36;
+    --text: #D7DAE1;
+    --muted: #868EA0;
+    --amber: #E9B44C;
+    --amber-bright: #E9B44C;
+    --grass: #46A356;
+    --rabbit: #6E92F0;
+    --fox: #E05B4F;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--text);
+    font: 17px/1.62 "Iowan Old Style", "Palatino Linotype", Palatino,
+          "Book Antiqua", Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px 120px; }
+  .col { max-width: var(--measure); }
+
+  code, pre, .mono, table { font-family: ui-monospace, "SF Mono", SFMono-Regular,
+    Menlo, Consolas, "Liberation Mono", monospace; }
+
+  /* ---- masthead ---- */
+  header { padding: 84px 0 46px; border-bottom: 1px solid var(--rule); }
+  .kicker {
+    font: 500 12px/1 ui-monospace, Menlo, monospace;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--amber);
+    margin-bottom: 22px;
+  }
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 3.9rem); line-height: 1.02;
+    margin: 0 0 20px; font-weight: 600; letter-spacing: -.018em;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 1.2rem; color: var(--muted); margin: 0; max-width: 60ch;
+    text-wrap: pretty;
+  }
+  .byline {
+    margin-top: 30px; font: 12px/1.5 ui-monospace, Menlo, monospace;
+    color: var(--muted); letter-spacing: .04em;
+  }
+
+  /* ---- sections ---- */
+  section { padding-top: 62px; }
+  .step {
+    display: flex; align-items: baseline; gap: 14px;
+    margin: 0 0 8px;
+  }
+  .step .n {
+    font: 500 12px/1 ui-monospace, Menlo, monospace; color: var(--amber);
+    letter-spacing: .12em; flex: none; padding-top: 4px;
+  }
+  h2 {
+    font-size: 1.72rem; line-height: 1.16; margin: 0; font-weight: 600;
+    letter-spacing: -.012em; text-wrap: balance;
+  }
+  h3 {
+    font-size: 1.06rem; margin: 34px 0 10px; font-weight: 600;
+    letter-spacing: -.005em;
+  }
+  p { margin: 0 0 18px; text-wrap: pretty; }
+  a { color: var(--amber); text-underline-offset: 3px; }
+  strong { font-weight: 600; }
+
+  /* ---- machine evidence breaks out of the column ---- */
+  figure { margin: 26px 0 30px; }
+  pre {
+    background: var(--panel); color: var(--panel-text);
+    padding: 20px 22px; border-radius: 3px; overflow-x: auto;
+    font-size: 13px; line-height: 1.62; margin: 0;
+    border-left: 2px solid var(--amber-bright);
+  }
+  pre .c { color: #7C8496; }
+  pre .a { color: var(--amber-bright); }
+  pre .k { color: #9AD1A6; }
+  figcaption {
+    font: 12px/1.5 ui-monospace, Menlo, monospace; color: var(--muted);
+    margin-top: 9px; letter-spacing: .02em;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 4px 0; }
+  .tablewrap { overflow-x: auto; margin: 26px 0 30px; }
+  th {
+    text-align: left; font-weight: 500; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .1em; font-size: 11px;
+    padding: 0 18px 9px 0; border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  td {
+    padding: 8px 18px 8px 0; border-bottom: 1px solid var(--rule);
+    vertical-align: top; font-variant-numeric: tabular-nums;
+  }
+  td.addr { color: var(--amber); white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+
+  .note {
+    border-left: 2px solid var(--rule); padding: 2px 0 2px 20px;
+    margin: 26px 0; color: var(--muted); font-size: .96rem;
+  }
+  .note strong { color: var(--text); }
+
+  /* Quoted text from the program itself — set apart, not decorated. */
+  blockquote {
+    margin: 24px 0; padding: 0 0 0 20px;
+    border-left: 2px solid var(--amber);
+    font-size: 1.02rem; line-height: 1.6; color: var(--text);
+  }
+
+  .find {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 3px; padding: 20px 24px; margin: 28px 0;
+  }
+  .find .lab {
+    font: 500 11px/1 ui-monospace, Menlo, monospace; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--amber); display: block;
+    margin-bottom: 11px;
+  }
+  .find p:last-child { margin-bottom: 0; }
+
+  .species { font-weight: 600; }
+  .g { color: var(--grass); } .r { color: var(--rabbit); } .f { color: var(--fox); }
+
+  ul { margin: 0 0 18px; padding-left: 22px; }
+  li { margin-bottom: 9px; }
+
+  footer {
+    margin-top: 88px; padding-top: 30px; border-top: 1px solid var(--rule);
+    color: var(--muted); font-size: .92rem;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    a { transition: opacity .15s ease; }
+    a:hover { opacity: .72; }
+  }
+  a:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="col">
+    <div class="kicker">Reverse engineering · 16-bit NE · Delphi 1</div>
+    <h1>Reading CREATURE.EXE</h1>
+    <p class="standfirst">
+      A 1996 Windows teaching program, and how its predator–prey model was
+      recovered from 16-bit code that carries no symbols — the file format, the
+      way in, and the algorithm as the binary actually runs it.
+    </p>
+    <div class="byline">
+      Subject: Creatures 1.0, Future Skill Software · author H&nbsp;M&nbsp;Sauro
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="col">
+    <div class="step"><span class="n">01</span><h2>The executable is not the program</h2></div>
+    <p>
+      <code>creat.exe</code> is 541&nbsp;KB and refuses to be a Windows binary.
+      Its header says <code>MZ</code>, then immediately says something more
+      useful:
+    </p>
+  </div>
+
+  <figure>
+<pre>00000020  eb 79 20 00 4c 48 41 27  73 20 53 46 58 20 32 2e  <span class="c">|.y .LHA's SFX 2.|</span>
+00000030  31 33 53 20 28 63 29 20  59 6f 73 68 69 2c 20 31  <span class="c">|13S (c) Yoshi, 1|</span>
+00000040  39 39 31 0d 0a 00 52 65  6e 61 6d 65 20 74 6f 20  <span class="c">|991...Rename to |</span>
+00000050  43 52 45 41 54 2e 45 58  45 00                    <span class="c">|CREAT.EXE.|</span></pre>
+    <figcaption>An LHA 2.13S self-extracting archive. <code>bsdtar -xf</code> opens it.</figcaption>
+  </figure>
+
+  <div class="col">
+    <p>
+      Inside is the actual program: <code>CREATURE.EXE</code>, 692&nbsp;KB,
+      16-bit <strong>NE</strong> — a Windows 3.x binary — along with an
+      installer, a settings file, and six saved fields with the extension
+      <code>.FLD</code>. The strings give away the toolchain immediately:
+      <em>Borland Delphi</em>, <em>Portions Copyright (c) 1983,95 Borland</em>.
+      Delphi 1, the only version that emitted 16-bit code.
+    </p>
+    <p>
+      That matters more than it sounds. Delphi stores each form as a serialised
+      resource, and those decode losslessly — every control, its geometry, and
+      the name of every event handler. The compiled Pascal is gone, but the
+      program's entire skeleton is recoverable, and with it a labelled index of
+      its own behaviour: <code>FieldonScreenPaint</code>,
+      <code>DisasterTimerTimer</code>, <code>btnStartClick</code>.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="step"><span class="n">02</span><h2>The saved fields</h2></div>
+    <p>
+      Each <code>.FLD</code> is exactly 6930 bytes and starts with a Pascal
+      string, <code>CPATTERN1</code>. After it sit twenty IEEE doubles, then
+      three counts, some flags, a size — and then the field itself.
+    </p>
+  </div>
+
+  <div class="tablewrap col">
+  <table>
+    <tr><th>offset</th><th>size</th><th>meaning</th></tr>
+    <tr><td class="addr">0</td><td>10</td><td>Pascal string <code>CPATTERN1</code></td></tr>
+    <tr><td class="addr">10</td><td>160</td><td>20 × float64 parameters</td></tr>
+    <tr><td class="addr">170</td><td>6</td><td>uint16 rabbits, foxes, grass</td></tr>
+    <tr><td class="addr">176</td><td>9</td><td>display and print flags</td></tr>
+    <tr><td class="addr">185</td><td>3</td><td>graph scale, graph on/off</td></tr>
+    <tr><td class="addr">204</td><td>2</td><td>field size N — 50 or 80</td></tr>
+    <tr><td class="addr">206</td><td>6724</td><td>82 × 82 grid of cells</td></tr>
+  </table>
+  </div>
+
+  <div class="col">
+    <p>
+      The grid is a fixed <code>array[0..81, 0..81] of Byte</code> written
+      wholesale, so <strong>the row stride stays 82 even when the live field is
+      50 × 50</strong>. That single detail is what breaks a naive parser, and
+      it is the fact that later makes the engine findable.
+    </p>
+    <p>
+      The twenty doubles line up exactly with the shipped
+      <code>STARTUP.INI</code>, which is how the mapping was confirmed rather
+      than guessed. Cells are a bitfield:
+      <span class="species g">1 grass</span>,
+      <span class="species r">2 rabbit</span>,
+      <span class="species f">4 fox</span> — so 3 is a rabbit standing on
+      grass. A reader and writer round-trips all six shipped files
+      byte-identically, and independently reproduces the population counts
+      stored in each header.
+    </p>
+
+    <h3>The sample fields are unit tests</h3>
+    <p>
+      Six <code>.FLD</code> files ship with the program, and four of them have
+      reproduction arrays with a <strong>single non-zero entry</strong>.
+      <code>FISSION.FLD</code> allows a rabbit to breed only when it has eight
+      free neighbours — total isolation — and starts with one rabbit in an
+      otherwise full field of grass. <code>SEX.FLD</code> allows it only at
+      seven free neighbours, meaning exactly one neighbour, and starts with
+      fifteen rabbits, each isolated. <code>RADIO.FLD</code> sets every
+      reproduction probability to zero and raises the death rate, leaving pure
+      exponential decay with a half-life of about 3.5 generations.
+    </p>
+    <p>
+      Each one isolates a single mechanism: asexual division, sexual
+      reproduction, decay. They are diagnostic instruments, and they are the
+      fastest way to check any reimplementation — a model that cannot make
+      <code>FISSION.FLD</code> grow past two is missing something, whatever its
+      population statistics say.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="step"><span class="n">03</span><h2>Getting into the binary</h2></div>
+    <p>
+      <code>CREATURE.EXE</code> has nineteen segments, 311&nbsp;KB of 16-bit
+      code, and no symbols. Two things make it navigable.
+    </p>
+    <h3>Delphi hands you the entry points</h3>
+    <p>
+      A form resource says <code>OnTimer = Timer1Timer</code>, and Delphi
+      resolves that by <em>name</em> at load time. So every published method
+      sits in the class's method table as an address followed by its name. The
+      address is stored as the NE relocation placeholder
+      <code>FF FF 00 00</code> and patched at load, so the walk is: name →
+      relocation record → entry table → code.
+    </p>
+  </div>
+
+  <figure>
+<pre><span class="c">method                   placeholder  code at</span>
+Timer1Timer              0x0a24       seg 1:198d
+FieldonScreenPaint       0x09fd       seg 1:18cd
+BtnOneGenClick           0x0a9c       seg 1:1f55
+FireinForest1Click       0x0ce8       seg 1:3252</pre>
+    <figcaption>Every event handler in the form, located without symbols.</figcaption>
+  </figure>
+
+  <div class="col">
+    <h3>The form settles what the program looked like</h3>
+    <p>
+      The same resources give the full control list, which is worth having
+      because the surviving screenshots do not agree with the binary. The
+      shipped form carries <em>five</em> sliders — sunlight, grass death, fox
+      hunting ability, rabbit death, fox death — and no control for simulation
+      speed, which is set from the Speed menu alone. The widely circulated
+      screenshot shows a sixth slider labelled Simulation Speed.
+    </p>
+    <p>
+      Neither is wrong; they are different builds. The screenshot is the later
+      one. It is a useful reminder that a program has versions, and that a
+      picture of it is evidence about one of them rather than about the
+      artefact you happen to be holding.
+    </p>
+  </div>
+
+  <div class="col">
+    <h3>The program documents its own central rule</h3>
+    <p>
+      One of the eight forms is the configuration dialog, and its help text
+      states the mechanism at the heart of the model in the author's own words
+      — recovered as plain text, before a single instruction had been read:
+    </p>
+    <blockquote>
+      The likelihood of a rabbit reproducing depends on the number of free
+      squares around the animal. The array below shows the current
+      probabilities for the eight possible patterns of vacancies.
+    </blockquote>
+    <p>
+      That is a complete specification of one rule: a nine-entry table indexed
+      by how many of the eight neighbouring cells are empty. It named what to
+      look for in the disassembly long before there was any hope of finding it,
+      and the machine code later confirmed it exactly — a routine that counts
+      free neighbours, feeding a table lookup.
+    </p>
+  </div>
+
+  <div class="col">
+    <h3>The automaton has a fingerprint</h3>
+    <p>
+      The field is 82 bytes per row, and 82 is not a number that turns up by
+      accident. Every index into the grid compiles to a multiply by
+      <code>0x52</code>. Counting them across all eighteen code segments:
+    </p>
+  </div>
+
+  <figure>
+<pre><span class="c">segment    imul di, ax, 0x52</span>
+seg 7            <span class="a">181</span>
+seg 1              6
+seg 11             1
+seg 2              3   <span class="c">(false positives — 0x6544 immediates)</span></pre>
+    <figcaption>Segment 7 is the simulation engine. Nothing else is close.</figcaption>
+  </figure>
+
+  <div class="note col">
+    <strong>One trap.</strong> The border sentinel <code>0xA0</code> is never an
+    immediate — it lives in a variable at <code>DS:021A</code>. Searching the
+    code for <code>cmp al, 0xA0</code> finds nothing at all, which for a while
+    looked like evidence that the border was never tested.
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="step"><span class="n">04</span><h2>What the data segment says</h2></div>
+    <p>
+      Before reading any code, the data segment gives up the model's vocabulary.
+      Three 82 × 82 buffers sit contiguously 6724 bytes apart, and the cell
+      values are laid out in a row:
+    </p>
+  </div>
+
+  <div class="tablewrap col">
+  <table>
+    <tr><th>address</th><th>name</th><th>value</th></tr>
+    <tr><td class="addr">DS:021A</td><td>BORDER</td><td>0xA0</td></tr>
+    <tr><td class="addr">DS:021B</td><td>EMPTY</td><td>0</td></tr>
+    <tr><td class="addr">DS:021C</td><td class="g">GRASS</td><td>1</td></tr>
+    <tr><td class="addr">DS:021D</td><td class="r">RABBIT</td><td>2</td></tr>
+    <tr><td class="addr">DS:021E</td><td class="f">FOX</td><td>4</td></tr>
+    <tr><td class="addr">DS:021F</td><td>DISEASED</td><td>8</td></tr>
+    <tr><td class="addr">DS:0224</td><td>ANIMAL_MASK</td><td>0x0E</td></tr>
+    <tr><td class="addr">DS:0226</td><td>FIELD_SIZE</td><td>50</td></tr>
+  </table>
+  </div>
+
+  <div class="col">
+    <p>
+      <code>0xA0</code> is <code>1010&nbsp;0000</code> — chosen so that a border
+      cell reads as no grass, no rabbit and no fox under a plain bit test. The
+      border needs no special case because its value already answers every
+      question correctly.
+    </p>
+    <p>
+      The parameters sit at <code>DS:0228</code> on a sixteen-byte stride as
+      <em>(value, max)</em> pairs, in exactly the order <code>STARTUP.INI</code>
+      lists them — which is what the INI loader writes into. The nine
+      reproduction probabilities follow at <code>DS:0280</code>, matching the
+      INI byte for byte.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="step"><span class="n">05</span><h2>The generation</h2></div>
+    <p>
+      <code>DoGeneration</code> runs four passes over the field. Every pass
+      reads one buffer and writes another, with an explicit commit between —
+      the update is double-buffered, not in place.
+    </p>
+  </div>
+
+  <figure>
+<pre><span class="k">DoGeneration</span>                            <span class="c">; 7:28F7</span>
+    NEXT := TMP                         <span class="c">; TMP is empty + borders</span>
+    <span class="k">GrassPass</span>                           <span class="c">; 7:1FC8</span>
+    <span class="k">AnimalPass</span>                          <span class="c">; 7:2169</span>
+    CUR := NEXT
+    <span class="k">DiseasePass</span>                         <span class="c">; 7:24F4</span>
+    CUR := NEXT
+    <span class="k">RabbitLoop</span>                          <span class="c">; 7:293A</span>
+    <span class="k">FoxLoop</span>                             <span class="c">; 7:2A64</span></pre>
+    <figcaption>The whole model, in the order the binary runs it.</figcaption>
+  </figure>
+
+  <div class="col">
+    <p>
+      Grass only ever spreads from existing grass — a cell with grass rolls
+      against sunlight, and on success picks <em>one</em> random neighbour that
+      isn't already grass and colonises it. Nothing makes grass appear
+      spontaneously. A fox has no separate reproduction step at all: catching an
+      adjacent rabbit <em>is</em> reproduction, and the cub takes the prey's
+      cell. Reproduction for rabbits is gated on grass at the parent — the
+      trophic link that ties sunlight, through grass, to the animals above it.
+    </p>
+    <p>
+      And then there are the details that only the instructions give up.
+    </p>
+  </div>
+
+  <div class="find col">
+    <span class="lab">Movement is four-way, and half the time</span>
+    <p>
+      The engine draws <code>Random(8)</code> for a direction — but the dispatch
+      is a compare chain testing only 1, 3, 5 and 7. There are no diagonal
+      moves, and movement happens at most half of the time. Every path that
+      does not move — an even draw, a border, an occupied square — falls
+      through to a write that puts the animal back in its own cell, which
+      matters because the grass pass has already overwritten that byte.
+    </p>
+    <p>
+      Reproduction, a few hundred bytes away, uses a real eight-way jump table.
+      The author plainly knew how to write one — which makes the four-way
+      movement read as a decision, not an oversight.
+    </p>
+  </div>
+
+  <div class="find col">
+    <span class="lab">Grazing is one in fifty</span>
+    <p>
+      A rabbit does not eat the grass beneath it each generation. It draws
+      <code>Random(50)</code> and grazes only when the result is exactly 25.
+    </p>
+  </div>
+
+  <div class="col">
+    <p>
+      The move itself is written in a way that produces two side effects the
+      author may not have intended, but which are unambiguous in the code:
+    </p>
+  </div>
+
+  <figure>
+<pre>  <span class="a">226a</span>  mov  al, [di+FIELD_CUR]     <span class="c">; the animal's own cell</span>
+  <span class="a">2277</span>  and  al, [ANIMAL_MASK]      <span class="c">; rabbit | fox | diseased</span>
+  <span class="a">2286</span>  mov  al, [di+FIELD_NEXT]    <span class="c">; ...still the SOURCE index</span>
+  <span class="a">228a</span>  or   al, dl
+  <span class="a">229a</span>  mov  [di+FIELD_NEXT], cl    <span class="c">; written to the TARGET</span></pre>
+    <figcaption>AnimalPass, direction 1. The source is never cleared.</figcaption>
+  </figure>
+
+  <div class="col">
+    <p>
+      The animal "moves" only because nothing writes it back at the source. The
+      value written to the target is composed from the <em>source's</em> pending
+      ground state — so grass travels with a moving animal — and it is a
+      <code>mov</code>, not an <code>or</code>, so whatever grass was already at
+      the target is destroyed.
+    </p>
+    <p>
+      Elsewhere the same shape appears as a plain dead store: the disease pass
+      writes <code>CUR[nb] AND NOT RABBIT</code> to a cell and then immediately
+      overwrites the same address with <code>CUR[nb] OR DISEASED</code>. Only the
+      second write survives. In <code>AddDiseasedRabbit</code> the two writes are
+      separated by a read-back, so both take effect — and the newly infected
+      rabbit <em>loses its rabbit bit</em>, quietly dropping out of the
+      population count.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="step"><span class="n">06</span><h2>The disasters</h2></div>
+    <p>
+      The Disasters menu never touches the field. Each item changes a single
+      parameter; three of the four save the old value first so a timer can put
+      it back. They are temporary shocks to the model, not damage to the grid.
+    </p>
+  </div>
+
+  <div class="tablewrap col">
+  <table>
+    <tr><th>menu item</th><th>effect</th><th>reverts</th></tr>
+    <tr><td>Fire destroys grass</td><td class="mono">GrassDeathRate := 0.79</td><td>yes</td></tr>
+    <tr><td>Disease spreads through rabbits</td><td class="mono">RabbitDeathRate := 0.5</td><td>yes</td></tr>
+    <tr><td>Over hunting of foxes</td><td class="mono">FoxDeathRate := 0.75</td><td>yes</td></tr>
+    <tr><td>Asteroid hits earth</td><td class="mono">SolarEnergyInput := 0.175</td><td>no</td></tr>
+  </table>
+  </div>
+
+  <div class="col">
+    <p>
+      The asteroid is the odd one only in being permanent: it changes sunlight
+      with no saved value and starts no timer, so the Sunlight slider stays
+      where the disaster put it and the user has to drag it back.
+    </p>
+    <p>
+      All four move their parameter's slider, and three of them get the
+      arithmetic wrong. The asteroid computes the position as
+      <code>value&nbsp;×&nbsp;100&nbsp;/&nbsp;max</code>; fire, over-hunting and
+      disease <em>multiply</em> by the maximum instead of dividing. That is only
+      the same operation when the maximum is 1.0, which is true of
+      <code>GrassDeathRate</code> alone — so fire comes out right by luck and
+      the other two do not. Over-hunting compounds it by reading grass's
+      maximum rather than its own.
+    </p>
+    <p>
+      The parameter itself is always set correctly, so the simulation never
+      diverges; only the number under the slider is wrong. And both broken
+      cases push a parameter past its own slider ceiling — a fox death rate of
+      0.75 against a maximum of 0.5 — so the correct reading would be 150%,
+      off the end of the track. There is no right answer to display, which is
+      plausibly why nobody noticed.
+    </p>
+    <p>
+      There are four disasters, not five. The item captioned <em>"Asteroid hits
+      earth&nbsp;— dust in atmosphere"</em> is the component
+      <code>NuclearWinter1</code>, so its handler is
+      <code>NuclearWinter1Click</code>. The caption was changed at some point
+      and the name never followed it.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="step"><span class="n">07</span><h2>Coverage</h2></div>
+    <p>
+      Claiming a binary is "understood" deserves a number rather than an
+      impression. Enumerating every routine in segment 7 — by prologue, by local
+      call target, and by the entry points recovered from the relocation table —
+      and attributing every byte:
+    </p>
+  </div>
+
+  <figure>
+<pre>simulation        6139 bytes   <span class="a">51.2%</span>   <span class="c">read instruction by instruction</span>
+file I/O, UI      5844 bytes   <span class="a">48.8%</span>   <span class="c">identified by signature</span>
+unread               2 bytes    0.0%   <span class="c">padding</span>
+                 ─────────────────────
+identified       11983 bytes  100.0%</pre>
+    <figcaption>Every byte of the engine segment attributed to a routine.</figcaption>
+  </figure>
+
+  <div class="col">
+    <p>
+      The other half of the engine turned out to be <code>LoadField</code> and
+      <code>SaveField</code>, the <code>TIniFile</code> pair that reads
+      <code>STARTUP.INI</code>, a string helper, and canvas setup. None of it
+      simulation — but none of it known to be so until it was looked at.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="step"><span class="n">08</span><h2>Built to be checked</h2></div>
+    <p>
+      The transcribed model is now a few hundred lines of dependency-free
+      JavaScript with a test for each rule, including the ones that only exist
+      because the binary says so: that <code>Random(n)</code> returns
+      <code>1..n</code> rather than <code>0..n-1</code>; that the eight
+      neighbours are scanned N, NW, W, SW, S, SE, E, NE, which decides where a
+      given random draw sends an offspring; that even movement draws are no-ops.
+    </p>
+    <p>
+      What stands out, thirty years on, is how much of the program is built to
+      be checked. The file format carries its own population counts, so a
+      corrupt field announces itself. The border sentinel is picked so the edge
+      case evaporates rather than needing a branch. The parameters sit in
+      value-and-maximum pairs, so a slider cannot put the model somewhere it
+      should not go. And the sample fields each disable everything but one
+      mechanism.
+    </p>
+    <p>
+      That last one is the tell. Those files are not demonstrations, they are
+      experiments — the same kind you would write today, and the fastest way to
+      check any reimplementation. Whoever made them was testing this model from
+      the other side of it.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="col">
+    <p>
+      Creatures 1.0 © 1996 Future Skill Software. This is a description of
+      recovered behaviour for study and reimplementation, not a redistribution
+      of the original code or assets. Addresses refer to
+      <code>CREATURE.EXE</code>, MD5 <code>75666dc9…20ca</code>, as shipped in
+      <code>creat.exe</code>.
+    </p>
+  </div>
+</footer>
+
+</div>

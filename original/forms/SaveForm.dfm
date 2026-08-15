@@ -1,0 +1,78 @@
+object SaveForm: TSaveForm
+  Left = 151
+  Top = 175
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Save Data'
+  ClientHeight = 174
+  ClientWidth = 427
+  Font.Color = clWindowText
+  Font.Height = -13
+  Font.Name = 'System'
+  Font.Style = []
+  PixelsPerInch = 96
+  Position = poScreenCenter
+  OnCreate = FormCreate
+  TextHeight = 16
+  object SaveAsOptions: TRadioGroup
+    Left = 16
+    Top = 25
+    Width = 188
+    Height = 141
+    Caption = ' Save Data As.. '
+    Items.Strings = ('Tabular Format' 'CSV Format' 'EasyGraph Format')
+    TabOrder = 0
+    OnClick = SaveAsOptionsClick
+  end
+  object BitBtn1: TBitBtn
+    Left = 222
+    Top = 34
+    Width = 196
+    Height = 32
+    Caption = 'Save data to file...'
+    TabOrder = 1
+    OnClick = BitBtn1Click
+    Glyph.Data = {
+      78010000424D7801000000000000760000002800000020000000100000000100
+      04000000000000000000120B0000120B00000000000000000000000000000000
+      800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+      333333FFFFFFFFFFFFF33000077777770033377777777777773F000007888888
+      00037F3337F3FF37F37F00000780088800037F3337F77F37F37F000007800888
+      00037F3337F77FF7F37F00000788888800037F3337777777337F000000000000
+      00037F3FFFFFFFFFFF7F00000000000000037F77777777777F7F000FFFFFFFFF
+      ... (380 bytes total)
+    }
+    Layout = blGlyphRight
+    NumGlyphs = 2
+    Spacing = 32
+  end
+  object BitBtn2: TBitBtn
+    Left = 222
+    Top = 119
+    Width = 196
+    Height = 50
+    Caption = 'Return to Main Screen'
+    Default = True
+    ModalResult = 1
+    TabOrder = 2
+    Glyph.Data = {
+      F6000000424DF600000000000000760000002800000010000000100000000100
+      0400000000008000000000000000000000001000000010000000000000000000
+      BF0000BF000000BFBF00BF000000BF00BF00BFBF0000C0C0C000808080000000
+      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00777777000000
+      87777777770AAAAA00877777770AAAAAA2077777770AAAAA2A20777777000000
+      A220777777777777002077777777777777007777077777777700777007777777
+      0020770A00000000A22070AAAAAAAAAA2A200AAAAAAAAAAAA20770AAAAAAAAAA
+      0077770A00000000877777700777777777777777077777777777
+    }
+    Layout = blGlyphRight
+  end
+  object SaveSim: TSaveDialog
+    FileName = 'data'
+    Filter = 'ASCII|*.txt|CSV|*.csv|EasyGraph|*.dat'
+    Options = [ofOverwritePrompt, ofPathMustExist]
+    Left = 397
+    Top = 2
+  end
+end

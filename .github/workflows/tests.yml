@@ -1,0 +1,46 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # The project has no dependencies — nothing to install, nothing to build.
+      # Chrome is preinstalled on the runner image; fail loudly if that changes,
+      # rather than letting a skipped UI audit read as a clean run.
+      - name: Locate Chrome
+        run: |
+          which google-chrome
+          google-chrome --version
+
+      - name: Tests, coverage and UI audit
+        run: node core/report.js --ui report
+        env:
+          UICHECK_HEADLESS: '1'
+          CHROME: /usr/bin/google-chrome
+
+      - name: Write job summary
+        if: always()
+        run: cat report/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      # The asset: a self-contained page with pass/fail per test, per-scenario
+      # UI findings, and the model's source annotated line by line with what
+      # the tests actually reached.
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: report/
+          if-no-files-found: error

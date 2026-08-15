@@ -1,0 +1,107 @@
+{
+ "BtnOneGenClick": [
+  1,
+  8021,
+  9813
+ ],
+ "DelayTimerTimer": [
+  1,
+  13832,
+  15624
+ ],
+ "DisasterTimerTimer": [
+  1,
+  13038,
+  14830
+ ],
+ "Diseasespreadsthroughrabbits1Click": [
+  1,
+  15483,
+  17275
+ ],
+ "FieldonScreenMouseDown": [
+  1,
+  7197,
+  8989
+ ],
+ "FieldonScreenPaint": [
+  1,
+  6349,
+  8141
+ ],
+ "FireinForest1Click": [
+  1,
+  12882,
+  14674
+ ],
+ "FormCreate": [
+  1,
+  5483,
+  7275
+ ],
+ "NuclearWinter1Click": [
+  1,
+  12806,
+  14598
+ ],
+ "OverhuntingofFoxes1Click": [
+  1,
+  14941,
+  16733
+ ],
+ "ReverttointernalDefaults1Click": [
+  1,
+  8992,
+  10784
+ ],
+ "Timer1Timer": [
+  1,
+  6541,
+  8333
+ ],
+ "Timer2Timer": [
+  1,
+  8666,
+  10458
+ ],
+ "btnStartClick": [
+  1,
+  6838,
+  8630
+ ],
+ "mnuAddDiseasedRabbitClick": [
+  1,
+  13553,
+  15345
+ ],
+ "mnuClearFieldClick": [
+  1,
+  13390,
+  15182
+ ],
+ "mnuFastClick": [
+  1,
+  13891,
+  15683
+ ],
+ "mnuMediumClick": [
+  1,
+  13957,
+  15749
+ ],
+ "mnuPopulateClick": [
+  1,
+  13428,
+  15220
+ ],
+ "mnuSetFieldSizeClick": [
+  1,
+  7935,
+  9727
+ ],
+ "mnuSlowClick": [
+  1,
+  14027,
+  15819
+ ]
+}
