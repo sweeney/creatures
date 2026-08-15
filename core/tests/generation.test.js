@@ -155,9 +155,39 @@ test('step: STABLE.FLD is still alive after 200 generations', function () {
   assert.equal(m.generation, 200, 'generation counter kept up');
   assert.ok(end.grass > 0, 'grass survived: ' + end.grass);
   assert.ok(end.rabbits > 0, 'rabbits survived: ' + end.rabbits);
-  // Foxes are the fragile trophic level and can legitimately die out from a
-  // given seed, so this asserts the food chain, not the whole ecosystem.
+  // Foxes too. This once said they were "the fragile trophic level" and could
+  // legitimately die out, which was an assumption rather than a measurement.
+  // Measured: across seeds 0-9 and 400 generations they never reach zero, and
+  // oscillate roughly 120-260. A field named STABLE ought to keep all three.
+  assert.ok(end.foxes > 0, 'foxes survived: ' + end.foxes);
   assert.ok(end.rabbits < f.size * f.size, 'did not saturate: ' + end.rabbits);
+});
+
+// Foxes never eat to survive: the death roll is unconditional and finding prey
+// only produces offspring (7:2AB0 rolls against FoxDeathRate before 7:2AF8
+// looks for a rabbit at all). So a fox population is always decaying, and
+// persists only while prey density keeps replacing it. That is why foxes
+// vanish quickly on a rabbit-poor field and hold steady on a rich one.
+test('step: foxes decay without prey and hold with it', function () {
+  function foxesAfter(rabbits, generations) {
+    var f = new C.Field(20);
+    var m = new C.Model(f, new C.Xorshift32(3));
+    var placed = 0, i = 0;
+    // Rabbits along the top rows, foxes along the bottom, so the two only
+    // meet if the rabbits are numerous enough to spread.
+    for (var r = 1; r <= 10 && placed < rabbits; r++) {
+      for (var c = 1; c <= 20 && placed < rabbits; c++, placed++) {
+        f.set(r, c, C.GRASS | C.RABBIT);
+      }
+    }
+    for (var fr = 11; fr <= 20; fr++) {
+      for (var fc = 1; fc <= 20 && i < 40; fc++, i++) f.set(fr, fc, C.FOX);
+    }
+    for (var g = 0; g < generations; g++) m.step();
+    return m.counts().foxes;
+  }
+  assert.equal(foxesAfter(0, 40), 0, 'with no prey at all, foxes die out');
+  assert.ok(foxesAfter(200, 40) > 0, 'with prey, the population sustains');
 });
 
 test('step: a field of pure grass does not overrun the border', function () {
