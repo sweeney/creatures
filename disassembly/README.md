@@ -156,6 +156,17 @@ The compiled defaults are not quite the INI's — the binary has GrassDeathRate
 0.3 and Solar 0.7 where the INI says 0.2 and 0.5 — but the INI is read at
 startup and overrides them.
 
+**The ceilings differ too**, which matters more than the values do because a
+ceiling is what every slider is a percentage of. `STARTUP.INI` ships
+`FoxDeathRateMax=0.6` against the binary's compiled 0.5; the rest agree. So the
+shipped program runs with 0.6, and 0.5 is only what it would fall back to
+without its INI. Both numbers are real — they answer different questions.
+
+Which one a given routine sees depends on when it runs.
+`ReverttointernalDefaults1Click` (`1:2320`) calls `SetDefaultParameters`
+directly, so "revert to internal defaults" restores the *compiled* values and
+deliberately ignores the INI.
+
 ## Primitives
 
 `Random_n` (7:1814) wraps Delphi's `Random(n)` (seg 18:1A24, yielding `0..n-1`)

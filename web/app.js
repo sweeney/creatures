@@ -12,7 +12,8 @@ var $ = function (id) { return document.getElementById(id); };
 
 var app = {
   field: null, model: null, seed: 0,
-  running: false, timer: null, delay: 120, disasterTimer: null,
+  // delay is replaced by boot(), which sets the Medium preset.
+  running: false, timer: null, delay: 500, disasterTimer: null,
   brush: 0, zoom: 1,
   history: { grass: [], rabbits: [], foxes: [] },
   yscale: 2000,
