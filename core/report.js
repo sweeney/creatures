@@ -30,27 +30,36 @@ function isSubject(file) {
 
 // ---- running the suites --------------------------------------------------
 
-function runCoreTests(tmp) {
-  var covDir = path.join(tmp, 'v8');
-  var resultsFile = path.join(tmp, 'results.json');
-  var r = spawnSync(process.execPath, [path.join(ROOT, 'core', 'test.js')], {
-    cwd: ROOT,
-    encoding: 'utf8',
-    env: Object.assign({}, process.env, {
-      NODE_V8_COVERAGE: covDir,
-      CREATURES_RESULTS: resultsFile,
-    }),
+// Both suites use the same harness and report the same shape. Only the core
+// run is measured for coverage: the web suite reads app.js as text rather
+// than executing it, so V8 has nothing to record.
+function runSuite(tmp, label, script, opts) {
+  var covDir = path.join(tmp, label + '-v8');
+  var resultsFile = path.join(tmp, label + '-results.json');
+  var env = Object.assign({}, process.env, { CREATURES_RESULTS: resultsFile });
+  if (opts && opts.coverage) env.NODE_V8_COVERAGE = covDir;
+
+  var r = spawnSync(process.execPath, [script], {
+    cwd: ROOT, encoding: 'utf8', env: env,
   });
   process.stdout.write(r.stdout || '');
   if (r.stderr) process.stderr.write(r.stderr);
   if (!fs.existsSync(resultsFile)) {
-    throw new Error('core tests produced no results file; exit ' + r.status);
+    throw new Error(label + ' tests produced no results file; exit ' + r.status);
   }
   return {
     results: JSON.parse(fs.readFileSync(resultsFile, 'utf8')),
-    coverage: readCoverage(covDir),
+    coverage: opts && opts.coverage ? readCoverage(covDir) : {},
     status: r.status,
   };
+}
+
+function runCoreTests(tmp) {
+  return runSuite(tmp, 'core', path.join(ROOT, 'core', 'test.js'), { coverage: true });
+}
+
+function runWebTests(tmp) {
+  return runSuite(tmp, 'web', path.join(ROOT, 'web', 'test.js'), { coverage: false });
 }
 
 function runUiCheck(tmp) {
@@ -192,7 +201,7 @@ function esc(s) {
 function summaryMarkdown(core, files, ui) {
   var out = [];
   var ok = core.results.failed === 0;
-  out.push('## ' + (ok ? '✅' : '❌') + ' Core tests — '
+  out.push('## ' + (ok ? '✅' : '❌') + ' Tests — '
     + core.results.passed + ' passed, ' + core.results.failed + ' failed');
   out.push('');
   if (core.results.failed) {
@@ -390,6 +399,20 @@ var files = Object.keys(core.coverage).sort().map(function (f) {
 });
 if (!files.length) console.error('  (no coverage captured for the model)');
 
+console.log('\nweb tests\n');
+var web = runWebTests(tmp);
+
+// One table for both. Each test name carries its own suite prefix, so the
+// report groups them without needing to know which runner produced them.
+var all = {
+  results: {
+    passed: core.results.passed + web.results.passed,
+    failed: core.results.failed + web.results.failed,
+    tests: core.results.tests.concat(web.results.tests),
+  },
+  status: core.status || web.status,
+};
+
 var ui = null;
 if (WITH_UI) {
   console.log('\nui audit\n');
@@ -402,8 +425,8 @@ var meta = {
   ref: process.env.GITHUB_REF_NAME || '',
 };
 
-fs.writeFileSync(path.join(OUT, 'index.html'), html(core, files, ui, meta));
-fs.writeFileSync(path.join(OUT, 'summary.md'), summaryMarkdown(core, files, ui));
+fs.writeFileSync(path.join(OUT, 'index.html'), html(all, files, ui, meta));
+fs.writeFileSync(path.join(OUT, 'summary.md'), summaryMarkdown(all, files, ui));
 fs.rmSync(tmp, { recursive: true, force: true });
 
 console.log('\nreport -> ' + path.join(OUT, 'index.html'));
@@ -415,6 +438,6 @@ files.forEach(function (f) {
 // Fail the build if anything failed, but only after the report is written.
 // A requested UI audit that produced nothing is a failure, not a pass: a
 // missing browser must not read as a clean run.
-var bad = core.results.failed > 0 || core.status !== 0
+var bad = all.results.failed > 0 || all.status !== 0
   || (WITH_UI && (!ui || !ui.clean));
 process.exit(bad ? 1 : 0);

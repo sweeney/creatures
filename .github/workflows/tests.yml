@@ -25,6 +25,7 @@ jobs:
           google-chrome --version
 
       - name: Tests, coverage and UI audit
+        # report.js runs core/test.js, web/test.js and uicheck.js
         run: node core/report.js --ui report
         env:
           UICHECK_HEADLESS: '1'
