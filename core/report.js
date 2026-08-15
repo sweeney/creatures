@@ -259,6 +259,7 @@ function html(core, files, ui, meta) {
   var h = [];
   h.push('<!doctype html><html lang="en"><head><meta charset="utf-8">');
   h.push('<meta name="viewport" content="width=device-width,initial-scale=1">');
+  h.push('<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'%3E%3ClinearGradient id=\'g\' x1=\'0\' y1=\'0\' x2=\'1\' y2=\'1\'%3E%3Cstop offset=\'40%25\' stop-color=\'%2300a000\'/%3E%3Cstop offset=\'40%25\' stop-color=\'%230000ff\'/%3E%3Cstop offset=\'70%25\' stop-color=\'%230000ff\'/%3E%3Cstop offset=\'70%25\' stop-color=\'%23ff0000\'/%3E%3C/linearGradient%3E%3Crect width=\'32\' height=\'32\' fill=\'url(%23g)\'/%3E%3C/svg%3E">');
   h.push('<title>Creatures — test report</title><style>');
   h.push(CSS);
   h.push('</style></head><body><div class="wrap">');
