@@ -11,9 +11,8 @@ are in [`../original/`](../original/).
 
 The site is gone; this is the Internet Archive's copy. The
 [Creatures download page, June 2004](https://web.archive.org/web/20040606134001fw_/http://www.fssc.demon.co.uk/EduSoft/Creatures/creature.htm)
-is the crawl that preserved `creat.exe` itself, not just the page describing
-it — which is why [`../original/`](../original/) exists at all. Kept here in
-case that crawl ever stops resolving.
+is the crawl that saved `creat.exe` itself, not just the page. Kept here in
+case it stops resolving.
 
 Useful as provenance and for period detail the binary does not carry: how the
 program was described to teachers, what it cost, what else the publisher sold.

@@ -11,11 +11,9 @@ Internet homepage. The hosting is long retired and the domain is gone, so the
 surviving copy is the Internet Archive's crawl of
 [the download page, June 2004](https://web.archive.org/web/20040606134001fw_/http://www.fssc.demon.co.uk/EduSoft/Creatures/creature.htm).
 
-The crawler followed the download link rather than only saving the HTML, which
-is the whole reason this project is possible: it preserved the program and not
-merely a description of one. A copy of the page is kept in
-[`../history/`](../history/) as well, because the Archive is a single point of
-failure too.
+The crawler followed the download link, not just the page, so the program
+survives and not only a description of it. A copy of the page is kept in
+[`../history/`](../history/) in case that crawl stops resolving.
 
 ## What it is
 
@@ -74,7 +72,7 @@ compiled code navigable at all. See "The forms" in
 
 ## `creatu1.jpg`
 
-Worth a warning: the screenshot shows a **six**-slider layout, and the shipped
+The screenshot shows a **six**-slider layout, and the shipped
 `Form1` has five. They are different builds, and the screenshot is the later
 one. Where they disagree, the binary is authoritative about the artefact in
 `files/` — but the browser reconstruction deliberately follows the screenshot,
