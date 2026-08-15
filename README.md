@@ -75,6 +75,13 @@ pass/fail per test, per-scenario UI findings, and the model's source annotated
 line by line with what the tests actually reached. CI publishes it as the
 **test-report** artifact on every push.
 
+## Credit
+
+The disassembly, the transcription and the write-up are the work of **Claude
+Opus 5** (Anthropic), run from Claude Code and directed by Martin Sweeney, on
+14–15 August 2026. Every commit carries a `Co-Authored-By` trailer naming the
+model, so `git log` is the full record of which changes came from where.
+
 ## Licence
 
 The reconstruction — `core/`, `web/`, `disassembly/` — is original work.
