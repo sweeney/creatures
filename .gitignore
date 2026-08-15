@@ -8,3 +8,8 @@ __pycache__/
 
 .DS_Store
 node_modules/
+
+# editor swap files
+*.swp
+*.swo
+*~

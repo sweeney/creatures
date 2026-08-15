@@ -72,12 +72,17 @@
   }
   .standfirst {
     font-size: 1.16rem; color: var(--muted);
-    max-width: var(--measure); margin: 0 0 30px;
+    max-width: var(--measure); margin: 0 0 15px;
   }
+  /* The gap before the buttons is a break between sections; the gap between
+     the paragraphs is not. Only the last one carries it. */
+  .standfirst:last-of-type { margin-bottom: 30px; }
   .hero { display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap; }
   .hero__text { flex: 1 1 26rem; min-width: 0; }
 
-  .stage { flex: 0 0 auto; }
+  /* figure carries a default 1em/40px margin: it would drop the field below
+     the kicker instead of aligning their tops. */
+  .stage { flex: 0 0 auto; margin: 0; }
   .stage figcaption {
     font: 12px/1.5 ui-monospace, Menlo, monospace;
     color: var(--muted); margin-top: 10px; max-width: 320px;
@@ -102,6 +107,9 @@
 
   /* ---- body ---- */
   section { margin-top: 76px; }
+  /* 76px separates one titled section from the next. The first has no title,
+     so it reads as a continuation of the hero and needs less air. */
+  header + section { margin-top: 40px; }
   h2 {
     font-size: 1.02rem; margin: 0 0 20px;
     font-family: ui-monospace, Menlo, monospace; font-weight: 600;
@@ -149,11 +157,14 @@
       <div class="kicker">Foxes and Rabbits Simulator · 1996</div>
       <h1>Creatures 2.0</h1>
       <p class="standfirst">
-        A Windows&nbsp;3.x teaching program, rebuilt from the binary it shipped
-        as. The predator–prey model is not reimplemented from what the original
-        appeared to do — it is transcribed instruction by instruction from the
-        machine code, so the passes, the probabilities and the quirks are the
-        ones it actually ran.
+        A field of <span class="g">grass</span> grows under sunlight;
+        <span class="r">rabbits</span> eat it and breed;
+        <span class="f">foxes</span> hunt the rabbits. Change the parameters and
+        watch the populations oscillate, stabilise or collapse.
+      </p>
+      <p class="standfirst">
+        Reverse-engineered and ported to the web from the original educational
+        simulation published in 1996 by H&nbsp;M&nbsp;Sauro.
       </p>
       <div class="actions">
         <a class="btn btn--go" href="web/index.html">Run the simulator</a>
@@ -170,24 +181,19 @@
 </header>
 
 <section>
-  <h2>What it is</h2>
   <p class="lede">
     <em>Creatures 1.0</em> was an educational simulation published in 1996 by
-    Future Skill Software, written by H&nbsp;M&nbsp;Sauro. A field of
-    <span class="g">grass</span> grows under sunlight;
-    <span class="r">rabbits</span> eat it and breed;
-    <span class="f">foxes</span> hunt the rabbits. Change five parameters and
-    watch the populations oscillate, stabilise or collapse.
+    Future Skill Software, written by <a href="https://www.engr.washington.edu/facultyfinder/herbert-sauro">H&nbsp;M&nbsp;Sauro</a>.
   </p>
   <p>
-    It ran on 16-bit Windows and has not been runnable on ordinary hardware for
+    It ran on 16-bit Windows and has not been usable on ordinary hardware for
     decades. This is the same simulation, in a browser, with the same rules —
-    recovered from <code>CREATURE.EXE</code> rather than guessed at.
+    recovered directly from the original <code>CREATURE.EXE</code>.
   </p>
 </section>
 
 <section>
-  <h2>What the code turned out to say</h2>
+  <h2>The Algorithm</h2>
   <ul class="findings">
     <li>
       <strong>Animals move orthogonally, at most half the time.</strong>
@@ -220,17 +226,17 @@
   <h2>The pieces</h2>
   <div class="grid">
     <div class="card">
-      <h3><a href="web/index.html">The simulator</a></h3>
+      <h3><a href="web/index.html">The Simulator</a></h3>
       <p>The 1996 interface, reconstructed — or a contemporary skin, if you
         prefer. No server, no build, no dependencies.</p>
     </div>
     <div class="card">
-      <h3><a href="reverse-engineering-creatures.html">The walkthrough</a></h3>
+      <h3><a href="reverse-engineering-creatures.html">Reverse Engineering</a></h3>
       <p>How a program with no symbols was read: the archive it hides in, the
         fingerprint that locates the engine, and the algorithm itself.</p>
     </div>
     <div class="card">
-      <h3><a href="https://github.com/sweeney/creatures">The source</a></h3>
+      <h3><a href="https://github.com/sweeney/creatures">The Source Code</a></h3>
       <p>The model and its tests, the disassembly tooling, and the original
         artefact with everything unpacked from it.</p>
     </div>
@@ -239,8 +245,7 @@
 
 <footer>
   <p>
-    <em>Creatures 1.0</em> is © 1996 Future Skill Software, Ystrad Meurig,
-    Dyfed. Reconstructed with the author's permission. The original binary and
+    <em>Creatures 1.0</em> is © 1996 Future Skill Software. Reconstructed with the author's permission. The original binary and
     its resources are included as reference; the reconstruction itself is
     original work.
   </p>
