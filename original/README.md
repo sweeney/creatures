@@ -4,6 +4,21 @@
 Software, Ystrad Meurig, Dyfed. This is the artefact everything else in the
 project is derived from, and the only authority on what the program did.
 
+## Where it came from
+
+Future Skill Software sold *Creatures* from `fssc.demon.co.uk`, a Demon
+Internet homepage. The hosting is long retired and the domain is gone, so the
+surviving copy is the Internet Archive's crawl of
+[the download page, June 2004](https://web.archive.org/web/20040606134001fw_/http://www.fssc.demon.co.uk/EduSoft/Creatures/creature.htm).
+
+The crawler followed the download link rather than only saving the HTML, which
+is the whole reason this project is possible: it preserved the program and not
+merely a description of one. A copy of the page is kept in
+[`../history/`](../history/) as well, because the Archive is a single point of
+failure too.
+
+## What it is
+
 `creat.exe` is not the program. It is an **LHA 2.13S self-extracting archive**,
 a DOS stub wrapping an LZH payload; `bsdtar -xf creat.exe` unpacks it on macOS
 with no extra tooling. Everything in `files/` came out of it.
