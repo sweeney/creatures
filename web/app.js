@@ -36,6 +36,8 @@ var MIN_TICK_PX = 38;
 // DS:031C). The slider spans the same range, so a preset lands exactly on it.
 var SPEED_PRESETS = { fast: 0, medium: 500, slow: 1000 };
 var SPEED_MAX_MS = 1000;
+// How long a temporary disaster lasts. See triggerDisaster().
+var DISASTER_MS = 1000;
 
 function delayFromSlider(v) { return (v / 100) * SPEED_MAX_MS; }
 function sliderFromDelay(ms) { return Math.round(ms / SPEED_MAX_MS * 100); }
@@ -373,13 +375,21 @@ function triggerDisaster(key) {
   syncSliders();
   if (C.DISASTERS[key].restores) {
     clearTimeout(app.disasterTimer);
-    // DisasterTimerTimer, 1:32EE — the original restores after a delay.
+    // DisasterTimerTimer, 1:32EE. The form declares `DisasterTimer: TTimer`
+    // with no Interval, and Delphi omits a property at its default -- so this
+    // is TTimer's default of 1000ms, not a value worth guessing at. (The same
+    // form writes `Enabled = False` precisely because its default is True, and
+    // writes `Interval = 1` on the two simulation timers because 1 is not the
+    // default. The omission is the evidence.)
+    //
+    // A shock an order of magnitude longer than this wipes STABLE.FLD out
+    // entirely instead of denting it.
     app.disasterTimer = setTimeout(function () {
       if (app.model.expireDisaster()) {
         syncSliders();
         notify('The disaster has passed; the rate is back to normal.');
       }
-    }, 12000);
+    }, DISASTER_MS);
     notify(label + ' — temporary.', true);
   } else {
     notify(label + ' — sunlight is permanently changed. Drag it back.', true);

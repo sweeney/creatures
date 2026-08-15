@@ -415,6 +415,31 @@ DisasterTimer.Enabled := True
 and `DisasterTimerTimer` (`1:32EE`) switches on `[0F86]`, restores `[0F88]` into
 the right parameter, disables itself, and repositions the slider again.
 
+**A disaster lasts one second.** The form declares the timer as
+
+```
+object DisasterTimer: TTimer
+  Enabled = False
+  OnTimer = DisasterTimerTimer
+end
+```
+
+with no `Interval`, and Delphi omits any property still at its default — so the
+interval is `TTimer`'s default of 1000 ms. The omission is the evidence, and
+the same form proves the convention both ways: it writes `Enabled = False`
+because that default is True, and writes `Interval = 1` on `Timer1` and
+`Timer2` because 1 is not the default.
+
+This is worth stating precisely because the duration is not a free parameter.
+Fire sets `GrassDeathRate` to 0.79 and disease sets `RabbitDeathRate` to 0.5,
+both far above anything a slider allows; they are survivable only because they
+are brief. Held for ten times as long, either one takes `STABLE.FLD` to total
+extinction with no recovery.
+
+Note also that re-triggering a disaster before its timer fires saves the
+*shocked* value into `[0F88]`, so the restore puts back 0.79 rather than the
+original rate. The handler has no guard against it.
+
 The asteroid is the odd one out only in being permanent: it writes
 `SolarEnergyInput` with no save and starts no timer, so the Sunlight slider
 stays where the disaster put it and the user has to drag it back.
