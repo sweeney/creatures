@@ -1,4 +1,4 @@
-# Creatures 1.0
+# Creatures 2.0
 
 A reconstruction of **Foxes and Rabbits Simulator** (Future Skill Software,
 1996) — a Windows 3.x educational predator–prey simulator — rebuilt from the

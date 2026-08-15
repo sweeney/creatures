@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Creatures 2.0</title>
+<meta name="description" content="A 1996 Windows teaching program, rebuilt from its shipped binary. The predator–prey model is transcribed instruction by instruction from the machine code.">
+<style>
+  :root {
+    --ground: #F5F5F2;
+    --surface: #FFFFFF;
+    --rule: #D9DAD4;
+    --text: #1A1C21;
+    --muted: #5F646F;
+    --amber: #9A6A12;
+    --grass: #2F7D3C;
+    --rabbit: #2B50B8;
+    --fox: #B83E33;
+    --measure: 64ch;
+    /* The field keeps the original's colours in either theme: they are the
+       subject, not decoration. */
+    --sim-empty: #000;
+    --sim-grass: #00a000;
+    --sim-rabbit: #0000ff;
+    --sim-fox: #ff0000;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0E1117;
+      --surface: #161A22;
+      --rule: #262B36;
+      --text: #D7DAE1;
+      --muted: #868EA0;
+      --amber: #E9B44C;
+      --grass: #46A356;
+      --rabbit: #6E92F0;
+      --fox: #E05B4F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0E1117; --surface: #161A22; --rule: #262B36;
+    --text: #D7DAE1; --muted: #868EA0; --amber: #E9B44C;
+    --grass: #46A356; --rabbit: #6E92F0; --fox: #E05B4F;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--text);
+    font: 17px/1.62 "Iowan Old Style", "Palatino Linotype", Palatino,
+      Georgia, "Times New Roman", serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 62rem; margin: 0 auto; padding: 0 24px 90px; }
+  code, .mono {
+    font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .88em;
+  }
+  a { color: inherit; }
+
+  /* ---- hero ---- */
+  header { padding: 64px 0 0; }
+  .kicker {
+    font: 500 12px/1 ui-monospace, Menlo, monospace;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 18px;
+  }
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 3.6rem); line-height: 1.04;
+    margin: 0 0 18px; letter-spacing: -.015em; text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 1.16rem; color: var(--muted);
+    max-width: var(--measure); margin: 0 0 30px;
+  }
+  .hero { display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap; }
+  .hero__text { flex: 1 1 26rem; min-width: 0; }
+
+  .stage { flex: 0 0 auto; }
+  .stage figcaption {
+    font: 12px/1.5 ui-monospace, Menlo, monospace;
+    color: var(--muted); margin-top: 10px; max-width: 320px;
+  }
+  canvas {
+    display: block; width: 320px; height: 320px;
+    max-width: 100%; background: var(--sim-empty);
+    border: 1px solid var(--rule);
+    image-rendering: pixelated;
+  }
+
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; margin: 0 0 10px; }
+  .btn {
+    display: inline-block; text-decoration: none;
+    padding: 12px 22px; border-radius: 6px;
+    border: 1px solid var(--rule);
+    font: 600 15px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
+  }
+  .btn--go { background: var(--text); color: var(--ground); border-color: var(--text); }
+  .btn:hover { opacity: .82; }
+  .btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+  /* ---- body ---- */
+  section { margin-top: 76px; }
+  h2 {
+    font-size: 1.02rem; margin: 0 0 20px;
+    font-family: ui-monospace, Menlo, monospace; font-weight: 600;
+    letter-spacing: .04em; text-transform: uppercase; color: var(--amber);
+  }
+  p { max-width: var(--measure); }
+  .lede { font-size: 1.06rem; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 26px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 22px 24px;
+  }
+  .card h3 { margin: 0 0 8px; font-size: 1.02rem; }
+  .card p { margin: 0; font-size: .95rem; color: var(--muted); }
+  .card a { text-decoration-color: var(--rule); }
+
+  ul.findings { list-style: none; margin: 0; padding: 0; max-width: var(--measure); }
+  ul.findings li {
+    padding: 14px 0; border-top: 1px solid var(--rule); font-size: 1rem;
+  }
+  ul.findings li:last-child { border-bottom: 1px solid var(--rule); }
+  .g { color: var(--grass); font-weight: 600; }
+  .r { color: var(--rabbit); font-weight: 600; }
+  .f { color: var(--fox); font-weight: 600; }
+
+  footer {
+    margin-top: 88px; padding-top: 28px; border-top: 1px solid var(--rule);
+    color: var(--muted); font-size: .92rem;
+  }
+  footer p { max-width: var(--measure); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    a { transition: opacity .15s ease; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <div class="hero">
+    <div class="hero__text">
+      <div class="kicker">Foxes and Rabbits Simulator · 1996</div>
+      <h1>Creatures 2.0</h1>
+      <p class="standfirst">
+        A Windows&nbsp;3.x teaching program, rebuilt from the binary it shipped
+        as. The predator–prey model is not reimplemented from what the original
+        appeared to do — it is transcribed instruction by instruction from the
+        machine code, so the passes, the probabilities and the quirks are the
+        ones it actually ran.
+      </p>
+      <div class="actions">
+        <a class="btn btn--go" href="web/index.html">Run the simulator</a>
+        <a class="btn" href="walkthrough.html">How it was recovered</a>
+        <a class="btn" href="https://github.com/sweeney/creatures">Source</a>
+      </div>
+    </div>
+
+    <figure class="stage">
+      <canvas id="field" width="50" height="50" aria-label="The simulation running"></canvas>
+      <figcaption id="stat">STABLE.FLD — the manual's stable ecosystem, running live</figcaption>
+    </figure>
+  </div>
+</header>
+
+<section>
+  <h2>What it is</h2>
+  <p class="lede">
+    <em>Creatures 1.0</em> was an educational simulation published in 1996 by
+    Future Skill Software, written by H&nbsp;M&nbsp;Sauro. A field of
+    <span class="g">grass</span> grows under sunlight;
+    <span class="r">rabbits</span> eat it and breed;
+    <span class="f">foxes</span> hunt the rabbits. Change five parameters and
+    watch the populations oscillate, stabilise or collapse.
+  </p>
+  <p>
+    It ran on 16-bit Windows and has not been runnable on ordinary hardware for
+    decades. This is the same simulation, in a browser, with the same rules —
+    recovered from <code>CREATURE.EXE</code> rather than guessed at.
+  </p>
+</section>
+
+<section>
+  <h2>What the code turned out to say</h2>
+  <ul class="findings">
+    <li>
+      <strong>Animals move orthogonally, at most half the time.</strong>
+      The dispatch draws a number from one to eight and acts on only four of
+      them. There are no diagonal moves — and on an even draw, none at all.
+    </li>
+    <li>
+      <strong>A blocked move still writes the animal back.</strong>
+      Miss that single store and the whole population quietly dies out, because
+      the grass pass has already overwritten the cell.
+    </li>
+    <li>
+      <strong>A fox that catches a rabbit breeds into its cell.</strong>
+      Hunting and reproduction are not separate steps.
+    </li>
+    <li>
+      <strong>Disasters change a parameter, not the field.</strong>
+      Fire, disease and over-hunting are temporary shocks that revert on a
+      timer. The asteroid is permanent.
+    </li>
+    <li>
+      <strong>Three of the four disasters move their slider with the wrong
+      arithmetic</strong> — a bug in the original, harmless to the simulation
+      and visible only in the number underneath.
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h2>The pieces</h2>
+  <div class="grid">
+    <div class="card">
+      <h3><a href="web/index.html">The simulator</a></h3>
+      <p>The 1996 interface, reconstructed — or a contemporary skin, if you
+        prefer. No server, no build, no dependencies.</p>
+    </div>
+    <div class="card">
+      <h3><a href="walkthrough.html">The walkthrough</a></h3>
+      <p>How a program with no symbols was read: the archive it hides in, the
+        fingerprint that locates the engine, and the algorithm itself.</p>
+    </div>
+    <div class="card">
+      <h3><a href="https://github.com/sweeney/creatures">The source</a></h3>
+      <p>The model and its tests, the disassembly tooling, and the original
+        artefact with everything unpacked from it.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>
+    <em>Creatures 1.0</em> is © 1996 Future Skill Software, Ystrad Meurig,
+    Dyfed. Reconstructed with the author's permission. The original binary and
+    its resources are included as reference; the reconstruction itself is
+    original work.
+  </p>
+</footer>
+
+</div>
+
+<script src="core/creatures.js"></script>
+<script src="web/fields.js"></script>
+<script>
+// The hero is the simulation itself, running the shipped STABLE.FLD. If
+// anything is unavailable the canvas simply stays black, and the page is
+// unaffected.
+(function () {
+  'use strict';
+  var C = window.Creatures;
+  var canvas = document.getElementById('field');
+  if (!C || !canvas || typeof FIELDS === 'undefined') return;
+
+  var ctx = canvas.getContext('2d');
+  var css = getComputedStyle(document.documentElement);
+  var colour = {
+    empty: css.getPropertyValue('--sim-empty').trim() || '#000',
+    grass: css.getPropertyValue('--sim-grass').trim() || '#00a000',
+    rabbit: css.getPropertyValue('--sim-rabbit').trim() || '#0000ff',
+    fox: css.getPropertyValue('--sim-fox').trim() || '#f00',
+  };
+
+  var field, model, img;
+  function reset() {
+    field = C.Field.fromBase64(FIELDS.STABLE);
+    model = new C.Model(field, new C.Xorshift32(Date.now() & 0xffff));
+    canvas.width = field.size;
+    canvas.height = field.size;
+    img = ctx.createImageData(field.size, field.size);
+  }
+
+  function rgb(hex) {
+    var h = hex.replace('#', '');
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    var n = parseInt(h, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  var PAL = {
+    empty: rgb(colour.empty), grass: rgb(colour.grass),
+    rabbit: rgb(colour.rabbit), fox: rgb(colour.fox),
+  };
+
+  function draw() {
+    var d = img.data, n = field.size, k = 0;
+    for (var r = 1; r <= n; r++) {
+      for (var c = 1; c <= n; c++) {
+        var v = field.get(r, c);
+        var p = (v & C.FOX) ? PAL.fox
+          : (v & (C.RABBIT | C.DISEASED)) ? PAL.rabbit
+          : (v & C.GRASS) ? PAL.grass : PAL.empty;
+        d[k++] = p[0]; d[k++] = p[1]; d[k++] = p[2]; d[k++] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  var stat = document.getElementById('stat');
+  function label() {
+    var c = model.counts();
+    stat.textContent = 'generation ' + model.generation
+      + ' · ' + c.grass + ' grass · ' + c.rabbits + ' rabbits · ' + c.foxes + ' foxes';
+  }
+
+  reset();
+  draw();
+  label();
+
+  var still = matchMedia('(prefers-reduced-motion: reduce)');
+  if (still.matches) return;              // a single frame is enough
+
+  var last = 0;
+  function tick(now) {
+    if (now - last > 110) {
+      last = now;
+      model.step();
+      var c = model.counts();
+      // Restart if the ecosystem collapses, so the page is never a dead field.
+      if (c.rabbits === 0 && c.foxes === 0) reset();
+      draw();
+      label();
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
