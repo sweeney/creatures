@@ -23,7 +23,7 @@ node core/report.js      # tests + coverage, as a self-contained HTML report
 | [`disassembly/`](disassembly/) | the tooling that read the binary, and [what it found](disassembly/README.md). |
 | [`original/`](original/) | the artefact itself — `creat.exe`, the unpacked files, the decoded forms. |
 | [`history/`](history/) | contemporary press and web captures. |
-| [`walkthrough.html`](walkthrough.html) | how the engine was recovered, written for a general reader. |
+| [`reverse-engineering-creatures.html`](reverse-engineering-creatures.html) | how the engine was recovered, written for a general reader. |
 
 The dependency direction is one way: `core/` knows nothing about `web/`, and
 `web/app.js` never computes a generation. Everything asserted in
