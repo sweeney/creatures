@@ -10,7 +10,7 @@ the probabilities and the quirks are the ones the original runs.
 
 ```
 open web/index.html      # the app: no server, no build, no dependencies
-node core/test.js        # 51 tests
+node core/test.js        # 71 tests
 node core/report.js      # tests + coverage, as a self-contained HTML report
 ```
 
@@ -54,7 +54,7 @@ cells. Some of what that turned up:
 
 ## Tests
 
-`core/` has 51 tests driven by a scripted RNG, so a stochastic model is
+`core/` has 71 tests driven by a scripted RNG, so a stochastic model is
 asserted **exactly** rather than statistically — each test states the draws it
 expects and fails if the code consumes a different number of them.
 

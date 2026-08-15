@@ -148,3 +148,110 @@ test('primitives: movement uses only the four orthogonal directions', function (
     assert.equal(C.MOVE_DIRS[d], undefined, 'direction ' + d + ' must not move');
   });
 });
+
+// ---- Xorshift32 ------------------------------------------------------
+// The PRNG the app actually runs on. Every other test injects a scripted RNG,
+// so without these it would have no coverage at all -- and a silent change
+// here changes every simulation the program has ever produced.
+
+test('Xorshift32: the same seed replays the same sequence', function () {
+  var a = new C.Xorshift32(12345), b = new C.Xorshift32(12345);
+  for (var i = 0; i < 500; i++) {
+    assert.equal(a.random(), b.random(), 'draw ' + i);
+  }
+});
+
+test('Xorshift32: different seeds diverge immediately', function () {
+  var a = new C.Xorshift32(1), b = new C.Xorshift32(2);
+  assert.ok(a.random() !== b.random(), 'first draw already differs');
+});
+
+// Recorded from this implementation. They exist to pin the algorithm: the
+// generator is meant to be reproducible across languages, so any edit that
+// moves these numbers changes what every saved run means.
+test('Xorshift32: known seeds produce known values', function () {
+  var expect = {
+    0: [0.31659353361465037, 0.8757069851271808, 0.4833001629449427],
+    1: [0.31653441302478313, 0.8912097958382219, 0.9002251622732729],
+    42: [0.31886310526169837, 0.2857113820500672, 0.4057331217918545],
+  };
+  Object.keys(expect).forEach(function (seed) {
+    var r = new C.Xorshift32(Number(seed));
+    expect[seed].forEach(function (want, i) {
+      assert.equal(r.random(), want, 'seed ' + seed + ' draw ' + i);
+    });
+  });
+});
+
+test('Xorshift32: output stays inside [0, 1)', function () {
+  var r = new C.Xorshift32(7);
+  for (var i = 0; i < 100000; i++) {
+    var v = r.random();
+    assert.ok(v >= 0 && v < 1, 'draw ' + i + ' was ' + v);
+  }
+});
+
+// A zero state is the one value a xorshift cannot leave, so the constructor
+// has to steer away from it. Seed 0 is the default, which makes this the
+// likeliest input, not an edge case.
+test('Xorshift32: seed 0 does not collapse the generator', function () {
+  var r = new C.Xorshift32(0);
+  var seen = {};
+  for (var i = 0; i < 1000; i++) seen[r.random()] = true;
+  assert.ok(Object.keys(seen).length > 900, 'sequence must not be constant');
+});
+
+test('randomN: returns 1..n, never 0', function () {
+  // Random_n at 7:1814 increments Delphi's Random(n), so the range is 1..n.
+  var r = new C.Xorshift32(3);
+  var lo = 99, hi = 0;
+  for (var i = 0; i < 20000; i++) {
+    var v = C.randomN(r, 8);
+    if (v < lo) lo = v;
+    if (v > hi) hi = v;
+  }
+  assert.equal(lo, 1, 'lowest draw');
+  assert.equal(hi, 8, 'highest draw');
+});
+
+// ---- Field helpers ---------------------------------------------------
+
+test('Field.clear: empties the interior and leaves the border', function () {
+  var f = new C.Field(4);
+  for (var r = 1; r <= 4; r++) {
+    for (var c = 1; c <= 4; c++) f.set(r, c, C.GRASS | C.RABBIT);
+  }
+  f.clear();
+  for (var r2 = 1; r2 <= 4; r2++) {
+    for (var c2 = 1; c2 <= 4; c2++) assert.equal(f.get(r2, c2), C.EMPTY);
+  }
+  assert.equal(f.get(0, 0), C.BORDER, 'border survives ClearField');
+  assert.equal(f.get(5, 5), C.BORDER);
+});
+
+test('Field.clone: is a deep copy, not a view', function () {
+  var f = new C.Field(3);
+  f.set(2, 2, C.FOX);
+  var g = f.clone();
+  assert.equal(g.get(2, 2), C.FOX, 'cells copied');
+  assert.equal(g.params.RabbitDeathRate, f.params.RabbitDeathRate);
+
+  g.set(2, 2, C.EMPTY);
+  g.params.RabbitDeathRate = 0.999;
+  g.params.ReproductiveProb[0] = 0.5;
+  assert.equal(f.get(2, 2), C.FOX, 'original cells untouched');
+  assert.equal(f.params.RabbitDeathRate !== 0.999, true, 'params not shared');
+  assert.equal(f.params.ReproductiveProb[0] !== 0.5, true, 'array not shared');
+});
+
+test('Model.counts: reports the live field', function () {
+  var f = new C.Field(3);
+  f.set(1, 1, C.GRASS);
+  f.set(2, 2, C.GRASS | C.RABBIT);
+  f.set(3, 3, C.FOX);
+  var m = new C.Model(f, new C.Xorshift32(0));
+  var c = m.counts();
+  assert.equal(c.grass, 2, 'grass counts under an animal too');
+  assert.equal(c.rabbits, 1);
+  assert.equal(c.foxes, 1);
+});

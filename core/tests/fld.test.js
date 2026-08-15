@@ -91,3 +91,42 @@ test('FLD: a field built from scratch writes a loadable file', function () {
   assert.deepEqual(reloaded.counts(), { rabbits: 1, foxes: 0, grass: 1 });
   assert.equal(reloaded.get(10, 10), C.RABBIT);
 });
+
+// fromBase64 is how the browser build loads a field: fetch() cannot read a
+// local file under file://, so the six shipped .FLD files are embedded in the
+// page as base64 and decoded through this path.
+test('FLD: fromBase64 decodes what toFLD encodes', function () {
+  NAMES.forEach(function (n) {
+    var want = raw(n);
+    var b64 = Buffer.from(want).toString('base64');
+    var f = C.Field.fromBase64(b64);
+    var got = f.toFLD();
+    assert.equal(got.length, want.length, n + ' length');
+    for (var i = 0; i < want.length; i++) {
+      if (got[i] !== want[i]) {
+        assert.ok(false, n + ' differs at byte ' + i
+          + ': expected ' + want[i] + ', got ' + got[i]);
+      }
+    }
+  });
+});
+
+test('FLD: fromBase64 matches what the browser build ships', function () {
+  // The generated fields.js must decode to the same grids as the files it was
+  // built from, or the app and the tests are simulating different worlds.
+  var src = fs.readFileSync(
+    path.join(__dirname, '..', '..', 'web', 'fields.js'), 'utf8');
+  NAMES.forEach(function (n) {
+    var m = new RegExp(n + ':\\s*["\']([A-Za-z0-9+/=]+)["\']').exec(src);
+    assert.ok(m, n + ' is present in web/fields.js');
+    var fromWeb = C.Field.fromBase64(m[1]);
+    var fromDisk = C.Field.fromFLD(raw(n));
+    assert.equal(fromWeb.size, fromDisk.size, n + ' size');
+    assert.deepEqual(fromWeb.counts(), fromDisk.counts(), n + ' populations');
+    for (var i = 0; i < fromDisk.cells.length; i++) {
+      if (fromWeb.cells[i] !== fromDisk.cells[i]) {
+        assert.ok(false, n + ' grid differs at cell ' + i);
+      }
+    }
+  });
+});
