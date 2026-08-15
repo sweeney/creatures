@@ -11,7 +11,7 @@ the probabilities and the quirks are the ones the original runs.
 ```
 open web/index.html      # the app: no server, no build, no dependencies
 node core/test.js        # 71 tests, the model
-node web/test.js         # 7 tests, the UI's constants
+node web/test.js         # 8 tests, the UI's constants
 node core/report.js      # tests + coverage, as a self-contained HTML report
 ```
 
@@ -59,7 +59,7 @@ cells. Some of what that turned up:
 asserted **exactly** rather than statistically — each test states the draws it
 expects and fails if the code consumes a different number of them.
 
-`web/` has 7 more that hold the interface's constants against the artefacts
+`web/` has 8 more that hold the interface's constants against the artefacts
 they were taken from — reading the delays back out of `CREATURE.EXE`, the
 timer intervals out of the form, the slider ceilings out of `STARTUP.INI`.
 They exist because a constant here was once invented and given a comment

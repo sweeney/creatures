@@ -40,6 +40,14 @@ var SPEED_MAX_MS = 1000;
 // How long a temporary disaster lasts. See triggerDisaster().
 var DISASTER_MS = 1000;
 
+// The delay to start at. A deliberate departure: the original compiles the
+// delay variable at DS:031C to 0, so it opens on Fast with no Speed preset
+// ticked. Flat out on modern hardware is too quick to watch, so this starts
+// at 200ms -- 80% of full speed on the slider's scale, which runs 0ms (Fast)
+// to SPEED_MAX_MS (Slow). Being between presets, no menu item is ticked,
+// which is what the original does too, if for a different reason.
+var DEFAULT_DELAY_MS = 200;
+
 function delayFromSlider(v) { return (v / 100) * SPEED_MAX_MS; }
 function sliderFromDelay(ms) { return Math.round(ms / SPEED_MAX_MS * 100); }
 
@@ -610,7 +618,7 @@ function boot() {
   var saved = null;
   try { saved = localStorage.getItem('creatures.skin'); } catch (e) { /* ignore */ }
   if (saved && saved !== '1996') setSkin(saved);
-  setDelay(SPEED_PRESETS.medium);   // the original starts on Medium
+  setDelay(DEFAULT_DELAY_MS);
   loadField('STABLE');
   setRunning(location.hash === '#run');
 }

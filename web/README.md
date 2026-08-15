@@ -32,8 +32,25 @@ the version people remember. The differences worth knowing about:
   slider for it, so this build has both, wired together: the menu presets move
   the slider, and dragging the slider clears the tick.
 
+- **It opens on `STABLE.FLD`.** `STARTUP.INI` names `startup.fld`, which is 9
+  rabbits, no foxes and 75 grass — a deliberately quiet field you press Start
+  on. `STABLE.FLD` is the manual's settled ecosystem, and makes a far better
+  first thing to see.
+
+- **It opens at 200 ms per generation.** The original compiles its delay
+  variable at `DS:031C` to 0, so it opens flat out with no Speed preset
+  ticked. Flat out on 1996 hardware was around eighteen generations a second;
+  on a modern machine it is far too quick to follow.
+
+- **"Set Field Size" is two menu items rather than a dialog.** The original
+  has a single item that opens one. 50×50 and 80×80 are the only sizes the
+  `.FLD` format can hold, so a dialog would only be a slower way to pick
+  between them.
+
 Anything in that list is a deliberate departure, not an oversight. Check here
-before "correcting" a control against the disassembly.
+before "correcting" a control against the disassembly — and note that
+`web/tests/constants.test.js` asserts several of these against the artefacts,
+so the *original's* value stays recorded even where this build differs.
 
 ## Using it
 

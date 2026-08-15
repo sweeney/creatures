@@ -81,6 +81,50 @@ test('constants: the speed slider spans the full range of the presets', function
     'the slider must reach Slow exactly, or a preset cannot land on it');
 });
 
+// Locate a segment in the NE image. Needed to read initialised data, which is
+// how the program's own starting delay is recovered.
+function segments() {
+  var ne = EXE.readUInt32LE(0x3c);
+  var count = EXE.readUInt16LE(ne + 0x1c);
+  var tableOff = ne + EXE.readUInt16LE(ne + 0x22);
+  var shift = EXE.readUInt16LE(ne + 0x32) || 9;
+  var out = [];
+  for (var i = 0; i < count; i++) {
+    var e = tableOff + i * 8;
+    out.push({
+      fileOff: EXE.readUInt16LE(e) << shift,
+      length: EXE.readUInt16LE(e + 2),
+      flags: EXE.readUInt16LE(e + 4),
+    });
+  }
+  return out;
+}
+
+function dataSegment() {
+  var s = segments().filter(function (x) { return x.flags & 1; });   // bit 0: DATA
+  if (s.length !== 1) throw new Error('expected one DATA segment, found ' + s.length);
+  return s[0];
+}
+
+test('constants: the app starts faster than the original, on purpose', function () {
+  var ds = dataSegment();
+  // Sanity-check the offset arithmetic before trusting anything read through
+  // it: FIELD_SIZE at DS:0226 is known to be 50.
+  assert.equal(EXE.readUInt16LE(ds.fileOff + 0x226), 50, 'DS:0226 is FIELD_SIZE');
+
+  // The delay the menu handlers write to. Its initialised value is the speed
+  // the program opens at.
+  var theirs = EXE.readUInt32LE(ds.fileOff + 0x31c);
+  assert.equal(theirs, 0, 'the original opens on Fast, with no preset ticked');
+
+  var ours = constant('DEFAULT_DELAY_MS');
+  assert.ok(ours >= 0 && ours <= constant('SPEED_MAX_MS'),
+    'the default must sit somewhere the slider can reach');
+  assert.ok(ours > theirs,
+    'ours is deliberately slower than flat out, which is unwatchable on '
+    + 'modern hardware; see the comment on DEFAULT_DELAY_MS');
+});
+
 // ---- how long a disaster lasts ---------------------------------------
 
 // The inference this rests on: Delphi omits a property still at its default.
